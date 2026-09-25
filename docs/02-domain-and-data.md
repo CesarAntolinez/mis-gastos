@@ -1,154 +1,242 @@
 # 02 — Dominio y datos
 
-## Modelo de dominio
+## Principio
 
-### Transaction
+`Transaction` es la fuente de verdad de los movimientos de dinero. Préstamos, pagos, ahorro, retiros y rendimientos deben estar respaldados por transacciones; las entidades auxiliares aportan contexto y estado de dominio.
 
-Representa un movimiento financiero.
+## Transaction
 
-Campos:
+Campos propuestos:
 
 - `id: Long`
-- `type: TransactionType`
-- `amount: Long`
 - `date: LocalDate`
-- `concept: String?`
+- `direction: TransactionDirection`
+- `nature: TransactionNature`
+- `amount: Long`
+- `categoryId: Long?`
 - `bucket: BudgetBucket?`
-- `category: ExpenseCategory?`
+- `concept: String?`
+- `relatedTransactionId: Long?`
+- `personId: Long?`
+- `financialProductId: Long?`
+- `status: TransactionStatus`
 - `createdAt: Instant`
 - `updatedAt: Instant`
 
-### TransactionType
+### TransactionDirection
 
 - `INCOME`
 - `EXPENSE`
 
-### BudgetBucket
+Responde únicamente si el saldo disponible aumenta o disminuye.
+
+### TransactionNature
+
+Naturalezas previstas hasta este punto:
+
+- `NEW_INCOME`
+- `EXPENSE`
+- `SAVING`
+- `SAVING_WITHDRAWAL`
+- `REIMBURSEMENT`
+- `OPENING_BALANCE`
+- `FINANCIAL_RETURN`
+- `LOAN`
+- `LOAN_REPAYMENT`
+
+La naturaleza determina cómo participa el movimiento en el ingreso base, ahorro y cuentas por cobrar.
+
+### TransactionStatus
+
+- `ACTIVE`
+- `VOIDED`
+
+Una transacción anulada permanece persistida pero no participa en cálculos financieros normales.
+
+## BudgetBucket
 
 - `NEEDS` — meta 50%
 - `WANTS` — meta 30%
 - `SAVINGS` — meta 20%
 
-### ExpenseCategory
+El bloque persistido en la transacción es la fuente de verdad histórica.
 
-Cada categoría tiene un `BudgetBucket` asociado y no puede usarse fuera de ese bloque.
+## Category
 
-No se persiste una tabla de categorías en el MVP. El catálogo vive en código como dominio estático, porque no existe CRUD de categorías.
+Campos:
 
-## Invariantes
+- `id: Long`
+- `name: String`
+- `defaultBucket: BudgetBucket`
+- `active: Boolean`
+- `createdAt: Instant`
+- `updatedAt: Instant`
+
+La categoría propone un bloque por defecto, pero la transacción puede sobrescribirlo.
+
+Cambiar `defaultBucket` no modifica transacciones existentes.
+
+## FinancialProduct
+
+Representa un contenedor financiero local simple, no una integración bancaria.
+
+Campos:
+
+- `id: Long`
+- `name: String`
+- `openingBalance: Long`
+- `active: Boolean`
+- `createdAt: Instant`
+- `updatedAt: Instant`
+
+Saldo derivado:
+
+```text
+openingBalance + aportes + rendimientos - retiros
+```
+
+Un retiro nunca puede producir saldo negativo.
+
+## Person
+
+Campos:
+
+- `id: Long`
+- `name: String`
+- `active: Boolean`
+- `createdAt: Instant`
+- `updatedAt: Instant`
+
+No es una agenda de contactos. Sólo identifica personas relacionadas con cuentas por cobrar.
+
+## Receivable
+
+Campos:
+
+- `id: Long`
+- `personId: Long`
+- `originTransactionId: Long`
+- `originalAmount: Long`
+- `date: LocalDate`
+- `concept: String?`
+- `status: ReceivableStatus`
+- `createdAt: Instant`
+- `updatedAt: Instant`
+
+### ReceivableStatus
+
+- `PENDING`
+- `PAID`
+
+## ReceivablePayment
+
+Campos:
+
+- `id: Long`
+- `receivableId: Long`
+- `transactionId: Long`
+- `amount: Long`
+- `date: LocalDate`
+- `createdAt: Instant`
+
+Saldo pendiente:
+
+```text
+originalAmount - suma(pagos activos)
+```
+
+Los pagos parciales son válidos. La suma de pagos activos no puede superar `originalAmount`.
+
+## Ingreso base 50/30/20
+
+No toda entrada de dinero es ingreso computable.
+
+Aumentan ingreso base:
+
+- `NEW_INCOME`.
+- `FINANCIAL_RETURN`.
+- devolución de préstamo recibida en un mes posterior al préstamo original.
+
+No aumentan ingreso base:
+
+- `OPENING_BALANCE`.
+- `SAVING_WITHDRAWAL`.
+- `REIMBURSEMENT` del mismo mes.
+
+## Regla de reintegro por mes contable
+
+Para una devolución asociada a una salida anterior:
+
+```text
+si month(payment.date) == month(origin.date) y year coincide:
+    naturaleza contable = REIMBURSEMENT
+    ingreso base += 0
+    gasto efectivo del mes se reduce
+si el pago ocurre en un mes posterior:
+    se considera ingreso del nuevo período
+    ingreso base += amount
+```
+
+Esta regla no se aplica a retiros de productos financieros.
+
+## Saldos
+
+### Saldo disponible
+
+Conceptualmente:
+
+```text
+saldo inicial disponible
++ entradas activas que afectan disponible
+- salidas activas que afectan disponible
+```
+
+### Saldo ahorrado total
+
+```text
+suma de saldos de productos financieros activos e inactivos con histórico
+```
+
+Desactivar un producto sólo evita nuevas operaciones; no elimina su saldo ni histórico.
+
+### Dinero por cobrar
+
+```text
+suma de saldos pendientes de Receivable activos
+```
+
+## Invariantes centrales
 
 1. `amount > 0`.
-2. Una transacción `INCOME` tiene `bucket == null` y `category == null`.
-3. Una transacción `EXPENSE` tiene `bucket != null` y `category != null`.
-4. En un egreso, `category.bucket == bucket`.
-5. `concept`, si existe, debe almacenarse sin espacios extremos y no debe quedar como cadena vacía.
-6. La fecha no puede ser posterior al día local actual.
+2. Los montos monetarios se persisten como enteros COP.
+3. La dirección determina el signo lógico; nunca se persisten montos negativos para representar egresos.
+4. Una categoría modificada no altera el histórico.
+5. El bloque almacenado en una transacción no cambia si cambia el default de la categoría.
+6. Un retiro de ahorro nunca es ingreso base.
+7. Un reintegro del mismo mes no es ingreso base.
+8. Una devolución de préstamo en un mes posterior sí es ingreso base.
+9. Un saldo inicial no es ingreso base.
+10. Un producto financiero no puede quedar con saldo negativo.
+11. Pagos acumulados de una cuenta por cobrar no superan su monto original.
+12. Una transacción `VOIDED` no participa en saldos ni indicadores normales.
+13. No se puede anular una transacción origen si existen dependencias activas que quedarían inválidas.
 
-## Modelo Room
+## Persistencia
 
-### Tabla `transactions`
+Se mantiene Room/SQLite como objetivo. El esquema definitivo se cerrará cuando terminemos indicadores y flujos, para evitar congelar prematuramente una estructura incompleta.
 
-```text
-id              INTEGER PRIMARY KEY AUTOINCREMENT
-transactionType TEXT NOT NULL
-amount          INTEGER NOT NULL
-transactionDate TEXT NOT NULL
-concept         TEXT NULL
-budgetBucket    TEXT NULL
-category        TEXT NULL
-createdAt       INTEGER NOT NULL
-updatedAt       INTEGER NOT NULL
-```
+Índices esperables:
 
-### Decisiones
+- fecha financiera de transacción;
+- naturaleza + fecha;
+- bloque + fecha;
+- `personId` cuando aplique;
+- `financialProductId` cuando aplique.
 
-- `amount`: entero en COP.
-- `transactionDate`: fecha ISO-8601 `YYYY-MM-DD` mediante converter.
-- `createdAt` / `updatedAt`: epoch milliseconds.
-- enums persistidos como identificadores estables de texto.
-- No guardar porcentajes ni agregados calculados; se derivan de transacciones.
+No crear índices adicionales sin una consulta concreta que los justifique.
 
-## Índices
+## Períodos
 
-Crear índice por `transactionDate`, porque dashboard e historial filtran por rango temporal.
+Crear un objeto de dominio `PeriodRange(start, endInclusive)` para filtros Semana/Mes/Año.
 
-Opcional si las consultas lo justifican durante implementación:
-
-- `(transactionType, transactionDate)`
-- `(budgetBucket, transactionDate)`
-
-No añadir índices por anticipación si los tests/consultas no los requieren.
-
-## Consultas mínimas DAO
-
-- Insertar transacción.
-- Actualizar transacción.
-- Eliminar transacción.
-- Obtener transacción por id.
-- Observar transacciones entre dos fechas, ordenadas descendente.
-- Observar totales del período sin cargar todas las filas cuando sea razonable.
-
-## Agregados del dashboard
-
-Para un período `P`:
-
-```text
-income = suma(amount donde type = INCOME)
-expenses = suma(amount donde type = EXPENSE)
-balance = income - expenses
-needs = suma(amount donde type = EXPENSE y bucket = NEEDS)
-wants = suma(amount donde type = EXPENSE y bucket = WANTS)
-savings = suma(amount donde type = EXPENSE y bucket = SAVINGS)
-```
-
-Si `income > 0`:
-
-```text
-needsPercent = needs / income * 100
-wantsPercent = wants / income * 100
-savingsPercent = savings / income * 100
-```
-
-La lógica de porcentaje debe usar una representación decimal segura para cálculo/formato; nunca persistir dinero en `Double`.
-
-### Diferencia frente a objetivo
-
-```text
-needsDelta = needsPercent - 50
-wantsDelta = wantsPercent - 30
-savingsDelta = savingsPercent - 20
-```
-
-Interpretación visual:
-
-- Necesidades/Deseos: sobrepasar la meta es señal de atención.
-- Ahorro: quedar por debajo de la meta es señal de atención.
-
-No convertir esta interpretación en consejos financieros personalizados en el MVP.
-
-## Rango temporal
-
-Crear un value object o función de dominio `PeriodRange(start: LocalDate, endInclusive: LocalDate)`.
-
-Granularidades:
-
-- `WEEK`
-- `MONTH`
-- `YEAR`
-
-El cálculo del rango no pertenece a la UI.
-
-## Semillas
-
-No insertar transacciones demo en builds normales.
-
-Para previews/tests pueden existir fixtures separados que nunca se escriban automáticamente en la DB real.
-
-## Migraciones
-
-Versión inicial de Room: `1`.
-
-Desde el inicio:
-
-- No usar destructive migration en producción.
-- Toda futura modificación de esquema debe añadir migración explícita y test de migración.
+La visualización semanal o anual no modifica retrospectivamente la naturaleza contable de reintegros, que se determina por el mes calendario de las fechas involucradas.
