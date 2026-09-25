@@ -1,0 +1,43 @@
+name: Feature request
+description: Propose a new product or infrastructure change linked to an approved SDD change
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests require a documented problem statement and proposed outcome before approval.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is the current behavior and why does it not satisfy the need?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should be built, at outcome level?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Documents, decision records, or runtime evidence supporting the request (paths required).
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Alternatives evaluated and why this approach wins.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Out of scope
+      description: Explicit non-goals for this request.
+    validations:
+      required: true
