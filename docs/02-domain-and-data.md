@@ -148,6 +148,26 @@ Reglas de configuración:
 - no puede existir otra persona activa con el mismo nombre normalizado;
 - reactivar vuelve a validar unicidad.
 
+## AppSetup
+
+Representa el estado explícito de inicialización de la aplicación.
+
+Modelo conceptual mínimo:
+
+```text
+AppSetup
+- onboardingCompleted: Boolean
+```
+
+Reglas:
+
+- `onboardingCompleted` no se infiere desde cantidad de transacciones, categorías o productos;
+- puede ser `true` aunque no exista ninguna transacción y todos los saldos iniciales sean cero;
+- la confirmación final del onboarding debe persistir este estado junto con categorías seed, `OPENING_BALANCE` cuando aplique y productos iniciales dentro de una única operación atómica;
+- no existe reinicio de onboarding en el MVP.
+
+El diseño físico definitivo puede representar `AppSetup` como tabla de una fila u otra estructura local equivalente, siempre que conserve estas propiedades.
+
 ## Normalización de nombres
 
 Para validación de duplicados se usa una representación normalizada conceptual:
@@ -216,6 +236,31 @@ No aumentan ingreso base:
 
 La fórmula canónica se encuentra en `09-indicators-dashboard.md`.
 
+## Saldo disponible inicial
+
+Durante onboarding:
+
+```text
+openingAvailableBalance > 0
+→ crear Transaction(OPENING_BALANCE)
+
+openingAvailableBalance == 0
+→ no crear transacción de monto cero
+```
+
+`OPENING_BALANCE`:
+
+- usa la fecha local de confirmación del onboarding;
+- aumenta disponible;
+- no aumenta ingreso base;
+- no participa en 50/30/20.
+
+Regla de corrección del MVP:
+
+- puede modificarse mientras no exista ningún otro movimiento financiero posterior de uso normal;
+- una vez existen movimientos posteriores, el monto inicial queda bloqueado;
+- si el onboarding se completó con cero y ya existen movimientos posteriores, no se crea retrospectivamente un `OPENING_BALANCE` como corrección silenciosa.
+
 ## Regla de reintegro por mes contable
 
 Para una devolución asociada a una salida anterior:
@@ -256,7 +301,7 @@ suma de saldos pendientes de Receivable activos
 
 ## Invariantes centrales
 
-1. `amount > 0`.
+1. `amount > 0` para transacciones persistidas.
 2. Los montos monetarios se persisten como enteros COP.
 3. Nunca se persisten montos negativos para representar egresos.
 4. `TransactionNature` determina el efecto contable; `TransactionDirection` no es suficiente por sí sola.
@@ -279,6 +324,13 @@ suma de saldos pendientes de Receivable activos
 21. Categorías, productos y personas activos no pueden duplicar nombre normalizado dentro de su tipo.
 22. Reactivar una entidad vuelve a validar las mismas invariantes que crearla activa.
 23. Desactivar una entidad maestra nunca reescribe ni elimina histórico financiero.
+24. El onboarding puede completarse con estado financiero inicial completamente en cero.
+25. No se persiste `OPENING_BALANCE` con monto cero.
+26. `FinancialProduct.openingBalance` no aumenta ingreso base ni cumplimiento 20%.
+27. Las categorías seed deben inicializarse idempotentemente.
+28. `onboardingCompleted` debe ser explícito y no inferido.
+29. La finalización del onboarding debe ser atómica.
+30. El saldo disponible inicial queda bloqueado después de existir movimientos financieros posteriores.
 
 ## Persistencia
 
