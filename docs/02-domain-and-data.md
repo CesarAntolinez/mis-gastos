@@ -2,13 +2,13 @@
 
 ## Principio
 
-`Transaction` es la fuente de verdad de los movimientos financieros. Préstamos, pagos, ahorro, retiros y rendimientos deben estar respaldados por transacciones; las entidades auxiliares aportan contexto y estado de dominio.
+`Transaction` es la fuente de verdad de los movimientos financieros. Préstamos, pagos, ahorro, retiros, devoluciones y rendimientos deben estar respaldados por transacciones; las entidades auxiliares aportan contexto y relaciones, pero no duplican los datos monetarios del movimiento.
 
-Las fórmulas visibles del Dashboard se definen en [`09-indicators-dashboard.md`](./09-indicators-dashboard.md). Este documento define entidades e invariantes, pero no debe duplicar esas fórmulas.
+Las fórmulas visibles del Dashboard se definen en [`09-indicators-dashboard.md`](./09-indicators-dashboard.md). El diseño físico de persistencia está congelado en [`14-room-sqlite-schema.md`](./14-room-sqlite-schema.md).
 
 ## Transaction
 
-Campos propuestos:
+Campos de dominio:
 
 - `id: Long`
 - `date: LocalDate`
@@ -34,8 +34,6 @@ La dirección describe el signo del movimiento desde la perspectiva funcional de
 
 ### TransactionNature
 
-Naturalezas previstas hasta este punto:
-
 - `NEW_INCOME`
 - `EXPENSE`
 - `SAVING`
@@ -50,12 +48,13 @@ La naturaleza determina cómo participa el movimiento en saldo disponible, produ
 
 Ejemplos:
 
-- `NEW_INCOME`: aumenta disponible e ingreso base.
+- `NEW_INCOME`: aumenta disponible e ingreso base. Puede ser ingreso ordinario o una devolución tardía relacionada con un gasto anterior.
 - `SAVING`: disminuye disponible y aumenta un producto financiero.
 - `SAVING_WITHDRAWAL`: disminuye un producto y aumenta disponible; no aumenta ingreso base.
 - `FINANCIAL_RETURN`: aumenta el producto financiero y el ingreso base, pero no el disponible directamente.
 - `LOAN`: disminuye disponible y crea una cuenta por cobrar.
-- `LOAN_REPAYMENT`: aumenta disponible y reduce la cuenta por cobrar; su efecto en ingreso base depende del mes original.
+- `LOAN_REPAYMENT`: aumenta disponible y reduce la cuenta por cobrar; su efecto en ingreso base depende del mes del préstamo original.
+- `REIMBURSEMENT`: devolución asociada a un gasto ordinario dentro del mismo mes calendario; aumenta disponible, no ingreso base y reduce el gasto efectivo del origen.
 
 ### TransactionStatus
 
@@ -89,11 +88,11 @@ La categoría propone un bloque por defecto, pero la transacción puede sobrescr
 
 Cambiar `defaultBucket` no modifica transacciones existentes.
 
-Reglas de configuración:
+Reglas:
 
 - `name.trim()` no puede quedar vacío;
 - no puede existir otra categoría activa con el mismo nombre normalizado;
-- reactivar una categoría vuelve a validar unicidad;
+- reactivar vuelve a validar unicidad;
 - desactivar no elimina histórico ni relaciones.
 
 ## FinancialProduct
@@ -115,16 +114,14 @@ Saldo derivado:
 openingBalance + aportes + rendimientos - retiros
 ```
 
-Un retiro nunca puede producir saldo negativo.
-
-Reglas de configuración:
+Reglas:
 
 - `openingBalance >= 0`;
-- `openingBalance` no cuenta como ingreso base ni ahorro del período;
-- `openingBalance` no afecta saldo disponible;
-- `openingBalance` queda bloqueado después de existir cualquier movimiento financiero relacionado en el histórico;
-- un producto sólo puede desactivarse si su saldo derivado actual es exactamente cero;
-- un producto inactivo conserva histórico y puede reactivarse;
+- no cuenta como ingreso base ni ahorro del período;
+- no afecta saldo disponible;
+- queda bloqueado después de existir histórico financiero relacionado;
+- el saldo derivado nunca puede ser negativo;
+- sólo puede desactivarse con saldo derivado exactamente cero;
 - no puede existir otro producto activo con el mismo nombre normalizado;
 - reactivar vuelve a validar unicidad.
 
@@ -140,101 +137,97 @@ Campos:
 
 No es una agenda de contactos. Sólo identifica personas relacionadas con cuentas por cobrar.
 
-Reglas de configuración:
+Reglas:
 
 - `name.trim()` no puede quedar vacío;
-- una persona sólo puede desactivarse cuando su saldo total pendiente por cobrar sea cero;
+- sólo puede desactivarse cuando su saldo total pendiente por cobrar sea cero;
 - desactivar conserva préstamos y pagos históricos;
 - no puede existir otra persona activa con el mismo nombre normalizado;
 - reactivar vuelve a validar unicidad.
 
-## AppSetup
-
-Representa el estado explícito de inicialización de la aplicación.
-
-Modelo conceptual mínimo:
-
-```text
-AppSetup
-- onboardingCompleted: Boolean
-```
-
-Reglas:
-
-- `onboardingCompleted` no se infiere desde cantidad de transacciones, categorías o productos;
-- puede ser `true` aunque no exista ninguna transacción y todos los saldos iniciales sean cero;
-- la confirmación final del onboarding debe persistir este estado junto con categorías seed, `OPENING_BALANCE` cuando aplique y productos iniciales dentro de una única operación atómica;
-- no existe reinicio de onboarding en el MVP.
-
-El diseño físico definitivo puede representar `AppSetup` como tabla de una fila u otra estructura local equivalente, siempre que conserve estas propiedades.
-
 ## Normalización de nombres
 
-Para validación de duplicados se usa una representación normalizada conceptual:
+Conceptualmente:
 
 ```text
 normalizedName = trim + comparación case-insensitive
 ```
 
-La capitalización original puede conservarse para presentación.
-
-La unicidad condicionada por `active` es una regla de dominio/aplicación. El diseño Room puede apoyarla con índices cuando sea viable, pero no debe asumir que un índice SQL simple reemplaza todas las validaciones de crear/reactivar.
+La capitalización original se conserva para presentación. El diseño físico persiste `normalized_name` para consultas/validaciones eficientes.
 
 ## Receivable
 
-Campos:
+`Receivable` representa la relación de cuenta por cobrar generada por una transacción `LOAN`. No duplica monto, fecha ni concepto del préstamo.
+
+Campos persistentes mínimos:
 
 - `id: Long`
 - `personId: Long`
 - `originTransactionId: Long`
-- `originalAmount: Long`
-- `date: LocalDate`
-- `concept: String?`
-- `status: ReceivableStatus`
 - `createdAt: Instant`
 - `updatedAt: Instant`
 
-### ReceivableStatus
+Datos derivados desde la transacción origen y sus pagos:
+
+```text
+originalAmount = originTransaction.amount
+date           = originTransaction.date
+concept        = originTransaction.concept
+paidAmount     = suma de pagos con transacción ACTIVE
+pendingAmount  = originalAmount - paidAmount
+status         = pendingAmount == 0 ? PAID : PENDING
+```
+
+`ReceivableStatus` puede existir como valor derivado de dominio/UI:
 
 - `PENDING`
 - `PAID`
 
+No es necesario persistirlo en v1.
+
 ## ReceivablePayment
 
-Campos:
+Representa la asociación entre una cuenta por cobrar y la transacción `LOAN_REPAYMENT` que registra un pago.
+
+Campos persistentes mínimos:
 
 - `id: Long`
 - `receivableId: Long`
 - `transactionId: Long`
-- `amount: Long`
-- `date: LocalDate`
 - `createdAt: Instant`
 
-Saldo pendiente:
+Monto y fecha se derivan desde la transacción asociada. No se duplican.
+
+Los pagos parciales son válidos. La suma de pagos activos no puede superar el monto de la transacción `LOAN` origen.
+
+## AppSetup
+
+Estado explícito de inicialización:
 
 ```text
-originalAmount - suma(pagos activos)
+onboardingCompleted: Boolean
 ```
 
-Los pagos parciales son válidos. La suma de pagos activos no puede superar `originalAmount`.
+No se infiere a partir de transacciones, categorías o productos. Su representación física se define en `14-room-sqlite-schema.md`.
 
 ## Ingreso base 50/30/20
 
-No toda entrada de dinero es ingreso computable.
-
 Aumentan ingreso base:
 
-- `NEW_INCOME`.
-- `FINANCIAL_RETURN`.
-- devolución de préstamo recibida en un mes posterior al préstamo original.
+- `NEW_INCOME`;
+- `FINANCIAL_RETURN`;
+- `LOAN_REPAYMENT` recibido en un mes calendario posterior al préstamo original.
 
 No aumentan ingreso base:
 
-- `OPENING_BALANCE`.
-- `SAVING_WITHDRAWAL`.
-- `REIMBURSEMENT` del mismo mes.
+- `OPENING_BALANCE`;
+- `SAVING_WITHDRAWAL`;
+- `REIMBURSEMENT` del mismo mes;
+- `LOAN_REPAYMENT` del mismo mes del préstamo.
 
-La fórmula canónica se encuentra en `09-indicators-dashboard.md`.
+Una devolución de gasto ordinario recibida en un mes posterior se persiste como `NEW_INCOME` con `relatedTransactionId` apuntando al gasto origen.
+
+La fórmula canónica está en `09-indicators-dashboard.md`.
 
 ## Saldo disponible inicial
 
@@ -248,60 +241,76 @@ openingAvailableBalance == 0
 → no crear transacción de monto cero
 ```
 
-`OPENING_BALANCE`:
+`OPENING_BALANCE` usa la fecha local de confirmación, aumenta disponible y no participa en ingreso base ni 50/30/20.
 
-- usa la fecha local de confirmación del onboarding;
-- aumenta disponible;
-- no aumenta ingreso base;
-- no participa en 50/30/20.
+Puede corregirse mientras no exista ningún otro movimiento financiero posterior. Después queda bloqueado.
 
-Regla de corrección del MVP:
+## Regla de devolución por mes contable
 
-- puede modificarse mientras no exista ningún otro movimiento financiero posterior de uso normal;
-- una vez existen movimientos posteriores, el monto inicial queda bloqueado;
-- si el onboarding se completó con cero y ya existen movimientos posteriores, no se crea retrospectivamente un `OPENING_BALANCE` como corrección silenciosa.
-
-## Regla de reintegro por mes contable
-
-Para una devolución asociada a una salida anterior:
+### Gasto ordinario
 
 ```text
-si month(payment.date) == month(origin.date) y year coincide:
-    naturaleza contable = REIMBURSEMENT
+mismo mes de origin.date:
+    nature = REIMBURSEMENT
     ingreso base += 0
     gasto efectivo del origen se reduce
-si el pago ocurre en un mes posterior:
-    se considera ingreso del nuevo período
+
+mes posterior:
+    nature = NEW_INCOME
+    relatedTransactionId = origen
     ingreso base += amount
 ```
 
-Esta regla no se aplica a retiros de productos financieros.
+### Préstamo
+
+```text
+nature = LOAN_REPAYMENT siempre
+
+mismo mes de origin.date:
+    ingreso base += 0
+    gasto efectivo del préstamo se reduce
+
+mes posterior:
+    ingreso base += amount
+```
+
+La naturaleza de `LOAN_REPAYMENT` no cambia porque sigue siendo un pago de la misma cuenta por cobrar; su tratamiento se deriva por relación de fechas.
 
 La visualización semanal o anual no reclasifica retrospectivamente estas relaciones.
+
+## Orden temporal de dependencias
+
+Para devoluciones y pagos relacionados:
+
+```text
+dependent.date >= origin.date
+```
+
+No se permite registrar una devolución o pago con fecha financiera anterior a su origen.
 
 ## Saldos
 
 ### Saldo disponible
 
-Representa el dinero utilizable actual fuera de productos financieros. Su contrato completo está en `09-indicators-dashboard.md`.
+Representa dinero utilizable actual fuera de productos financieros. Contrato completo en `09-indicators-dashboard.md`.
 
 ### Saldo ahorrado total
 
 ```text
-suma de saldos derivados de productos financieros activos e inactivos
+suma de saldos derivados de productos financieros
 ```
 
-Un producto inactivo sólo puede existir con saldo actual cero bajo las reglas de Configuración del MVP, aunque su histórico siga participando en consultas pasadas.
+Bajo las reglas del MVP un producto sólo puede desactivarse con saldo actual cero, aunque conserve histórico.
 
 ### Dinero por cobrar
 
 ```text
-suma de saldos pendientes de Receivable activos
+suma de pendingAmount derivados de Receivable
 ```
 
 ## Invariantes centrales
 
-1. `amount > 0` para transacciones persistidas.
+1. `amount > 0`.
 2. Los montos monetarios se persisten como enteros COP.
 3. Nunca se persisten montos negativos para representar egresos.
 4. `TransactionNature` determina el efecto contable; `TransactionDirection` no es suficiente por sí sola.
@@ -310,51 +319,45 @@ suma de saldos pendientes de Receivable activos
 7. `Category.defaultBucket` sólo puede ser `NEEDS` o `WANTS`.
 8. Un retiro de ahorro nunca es ingreso base.
 9. Un reintegro del mismo mes no es ingreso base.
-10. Una devolución de préstamo en un mes posterior sí es ingreso base.
-11. Un saldo inicial no es ingreso base.
-12. Un producto financiero no puede quedar con saldo negativo.
-13. Pagos acumulados de una cuenta por cobrar no superan su monto original.
-14. Una transacción `VOIDED` no participa en saldos ni indicadores normales.
-15. No se puede anular una transacción origen si existen dependencias activas que quedarían inválidas.
-16. Un retiro de ahorro no reduce retroactivamente el indicador de aportes al 20% del período.
-17. Un rendimiento financiero puede aumentar el ingreso base sin aumentar directamente el saldo disponible.
-18. Un producto financiero con saldo actual distinto de cero no puede desactivarse.
-19. `FinancialProduct.openingBalance` no puede cambiar después de existir histórico financiero relacionado.
-20. Una persona con saldo pendiente por cobrar no puede desactivarse.
-21. Categorías, productos y personas activos no pueden duplicar nombre normalizado dentro de su tipo.
-22. Reactivar una entidad vuelve a validar las mismas invariantes que crearla activa.
-23. Desactivar una entidad maestra nunca reescribe ni elimina histórico financiero.
-24. El onboarding puede completarse con estado financiero inicial completamente en cero.
-25. No se persiste `OPENING_BALANCE` con monto cero.
-26. `FinancialProduct.openingBalance` no aumenta ingreso base ni cumplimiento 20%.
-27. Las categorías seed deben inicializarse idempotentemente.
-28. `onboardingCompleted` debe ser explícito y no inferido.
-29. La finalización del onboarding debe ser atómica.
-30. El saldo disponible inicial queda bloqueado después de existir movimientos financieros posteriores.
+10. Una devolución de gasto ordinario de mes posterior es `NEW_INCOME` relacionado.
+11. Un pago de préstamo de mes posterior sí es ingreso base, pero conserva `LOAN_REPAYMENT`.
+12. Un saldo inicial no es ingreso base.
+13. Un producto financiero no puede quedar con saldo negativo.
+14. Pagos activos acumulados no superan el préstamo original.
+15. Reintegros/devoluciones activos acumulados no superan el gasto original.
+16. Una transacción `VOIDED` no participa en saldos ni indicadores normales.
+17. No se puede anular una transacción origen si existen dependencias activas que quedarían inválidas.
+18. Un retiro de ahorro no reduce retroactivamente el indicador 20% del período.
+19. Un rendimiento financiero puede aumentar ingreso base sin aumentar directamente disponible.
+20. Un producto con saldo distinto de cero no puede desactivarse.
+21. `FinancialProduct.openingBalance` no puede cambiar después de existir histórico financiero relacionado.
+22. Una persona con saldo pendiente no puede desactivarse.
+23. Categorías, productos y personas activos no duplican nombre normalizado dentro de su tipo.
+24. Reactivar vuelve a validar las mismas invariantes que crear activo.
+25. Desactivar una entidad maestra nunca reescribe ni elimina histórico.
+26. `Receivable` y `ReceivablePayment` no duplican monto/fecha de sus transacciones fuente.
+27. Un movimiento dependiente no puede tener fecha anterior a su origen.
+28. El onboarding puede completarse con estado financiero inicial completamente en cero.
+29. No se persiste `OPENING_BALANCE` con monto cero.
+30. Las categorías seed se inicializan idempotentemente.
+31. `onboardingCompleted` es explícito y la finalización del onboarding es atómica.
 
 ## Persistencia
 
-Se mantiene Room/SQLite como objetivo. El esquema definitivo se cerrará cuando terminemos los flujos de pantallas, para evitar congelar prematuramente una estructura incompleta.
+Room/SQLite es la persistencia objetivo. El esquema físico v1, foreign keys, índices, converters, operaciones atómicas y consultas críticas están definidos en `14-room-sqlite-schema.md`.
 
-Índices esperables:
-
-- fecha financiera de transacción;
-- naturaleza + fecha;
-- bloque + fecha;
-- `relatedTransactionId` cuando aplique;
-- `personId` cuando aplique;
-- `financialProductId` cuando aplique.
-
-El diseño físico deberá considerar consultas para nombres normalizados/activos sin trasladar toda la lógica de negocio a restricciones SQL.
-
-No crear índices adicionales sin una consulta concreta que los justifique.
+No crear tablas/materializaciones adicionales para saldos o Dashboard sin una necesidad medida y una decisión documentada.
 
 ## Períodos
 
-Crear un objeto de dominio `PeriodRange(start, endInclusive)` para filtros Semana/Mes/Año.
+Objeto de dominio:
+
+```text
+PeriodRange(start, endInclusive)
+```
 
 - Semana: lunes a domingo.
 - Mes: mes calendario.
 - Año: año calendario.
 
-Los agregados del período se calculan directamente sobre su rango; no se promedian porcentajes mensuales para construir el año.
+Los agregados se calculan directamente sobre el rango; el año no promedia porcentajes mensuales.
