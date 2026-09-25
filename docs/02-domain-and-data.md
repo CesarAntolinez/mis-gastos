@@ -2,7 +2,9 @@
 
 ## Principio
 
-`Transaction` es la fuente de verdad de los movimientos de dinero. Préstamos, pagos, ahorro, retiros y rendimientos deben estar respaldados por transacciones; las entidades auxiliares aportan contexto y estado de dominio.
+`Transaction` es la fuente de verdad de los movimientos financieros. Préstamos, pagos, ahorro, retiros y rendimientos deben estar respaldados por transacciones; las entidades auxiliares aportan contexto y estado de dominio.
+
+Las fórmulas visibles del Dashboard se definen en [`09-indicators-dashboard.md`](./09-indicators-dashboard.md). Este documento define entidades e invariantes, pero no debe duplicar esas fórmulas.
 
 ## Transaction
 
@@ -28,7 +30,7 @@ Campos propuestos:
 - `INCOME`
 - `EXPENSE`
 
-Responde únicamente si el saldo disponible aumenta o disminuye.
+La dirección describe el signo del movimiento desde la perspectiva funcional del usuario, pero **no basta para decidir qué saldo cambia**.
 
 ### TransactionNature
 
@@ -44,7 +46,16 @@ Naturalezas previstas hasta este punto:
 - `LOAN`
 - `LOAN_REPAYMENT`
 
-La naturaleza determina cómo participa el movimiento en el ingreso base, ahorro y cuentas por cobrar.
+La naturaleza determina cómo participa el movimiento en saldo disponible, productos financieros, ingreso base, ahorro y cuentas por cobrar.
+
+Ejemplos:
+
+- `NEW_INCOME`: aumenta disponible e ingreso base.
+- `SAVING`: disminuye disponible y aumenta un producto financiero.
+- `SAVING_WITHDRAWAL`: disminuye un producto y aumenta disponible; no aumenta ingreso base.
+- `FINANCIAL_RETURN`: aumenta el producto financiero y el ingreso base, pero no el disponible directamente.
+- `LOAN`: disminuye disponible y crea una cuenta por cobrar.
+- `LOAN_REPAYMENT`: aumenta disponible y reduce la cuenta por cobrar; su efecto en ingreso base depende del mes original.
 
 ### TransactionStatus
 
@@ -163,6 +174,8 @@ No aumentan ingreso base:
 - `SAVING_WITHDRAWAL`.
 - `REIMBURSEMENT` del mismo mes.
 
+La fórmula canónica se encuentra en `09-indicators-dashboard.md`.
+
 ## Regla de reintegro por mes contable
 
 Para una devolución asociada a una salida anterior:
@@ -171,7 +184,7 @@ Para una devolución asociada a una salida anterior:
 si month(payment.date) == month(origin.date) y year coincide:
     naturaleza contable = REIMBURSEMENT
     ingreso base += 0
-    gasto efectivo del mes se reduce
+    gasto efectivo del origen se reduce
 si el pago ocurre en un mes posterior:
     se considera ingreso del nuevo período
     ingreso base += amount
@@ -179,22 +192,18 @@ si el pago ocurre en un mes posterior:
 
 Esta regla no se aplica a retiros de productos financieros.
 
+La visualización semanal o anual no reclasifica retrospectivamente estas relaciones.
+
 ## Saldos
 
 ### Saldo disponible
 
-Conceptualmente:
-
-```text
-saldo inicial disponible
-+ entradas activas que afectan disponible
-- salidas activas que afectan disponible
-```
+Representa el dinero utilizable actual fuera de productos financieros. Su contrato completo está en `09-indicators-dashboard.md`.
 
 ### Saldo ahorrado total
 
 ```text
-suma de saldos de productos financieros activos e inactivos con histórico
+suma de saldos derivados de productos financieros activos e inactivos
 ```
 
 Desactivar un producto sólo evita nuevas operaciones; no elimina su saldo ni histórico.
@@ -209,27 +218,31 @@ suma de saldos pendientes de Receivable activos
 
 1. `amount > 0`.
 2. Los montos monetarios se persisten como enteros COP.
-3. La dirección determina el signo lógico; nunca se persisten montos negativos para representar egresos.
-4. Una categoría modificada no altera el histórico.
-5. El bloque almacenado en una transacción no cambia si cambia el default de la categoría.
-6. Un retiro de ahorro nunca es ingreso base.
-7. Un reintegro del mismo mes no es ingreso base.
-8. Una devolución de préstamo en un mes posterior sí es ingreso base.
-9. Un saldo inicial no es ingreso base.
-10. Un producto financiero no puede quedar con saldo negativo.
-11. Pagos acumulados de una cuenta por cobrar no superan su monto original.
-12. Una transacción `VOIDED` no participa en saldos ni indicadores normales.
-13. No se puede anular una transacción origen si existen dependencias activas que quedarían inválidas.
+3. Nunca se persisten montos negativos para representar egresos.
+4. `TransactionNature` determina el efecto contable; `TransactionDirection` no es suficiente por sí sola.
+5. Una categoría modificada no altera el histórico.
+6. El bloque almacenado en una transacción no cambia si cambia el default de la categoría.
+7. Un retiro de ahorro nunca es ingreso base.
+8. Un reintegro del mismo mes no es ingreso base.
+9. Una devolución de préstamo en un mes posterior sí es ingreso base.
+10. Un saldo inicial no es ingreso base.
+11. Un producto financiero no puede quedar con saldo negativo.
+12. Pagos acumulados de una cuenta por cobrar no superan su monto original.
+13. Una transacción `VOIDED` no participa en saldos ni indicadores normales.
+14. No se puede anular una transacción origen si existen dependencias activas que quedarían inválidas.
+15. Un retiro de ahorro no reduce retroactivamente el indicador de aportes al 20% del período.
+16. Un rendimiento financiero puede aumentar el ingreso base sin aumentar directamente el saldo disponible.
 
 ## Persistencia
 
-Se mantiene Room/SQLite como objetivo. El esquema definitivo se cerrará cuando terminemos indicadores y flujos, para evitar congelar prematuramente una estructura incompleta.
+Se mantiene Room/SQLite como objetivo. El esquema definitivo se cerrará cuando terminemos los flujos de pantallas, para evitar congelar prematuramente una estructura incompleta.
 
 Índices esperables:
 
 - fecha financiera de transacción;
 - naturaleza + fecha;
 - bloque + fecha;
+- `relatedTransactionId` cuando aplique;
 - `personId` cuando aplique;
 - `financialProductId` cuando aplique.
 
@@ -239,4 +252,8 @@ No crear índices adicionales sin una consulta concreta que los justifique.
 
 Crear un objeto de dominio `PeriodRange(start, endInclusive)` para filtros Semana/Mes/Año.
 
-La visualización semanal o anual no modifica retrospectivamente la naturaleza contable de reintegros, que se determina por el mes calendario de las fechas involucradas.
+- Semana: lunes a domingo.
+- Mes: mes calendario.
+- Año: año calendario.
+
+Los agregados del período se calculan directamente sobre su rango; no se promedian porcentajes mensuales para construir el año.
