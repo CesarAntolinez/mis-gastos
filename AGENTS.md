@@ -16,11 +16,12 @@ Antes de implementar, leer en este orden:
 6. `docs/10-navigation-and-flows.md`
 7. `docs/11-history.md`
 8. `docs/12-configuration.md`
-9. `docs/03-ux-ui.md`
-10. `docs/04-architecture.md`
-11. `docs/05-roadmap.md`
-12. `docs/06-acceptance-criteria.md`
-13. `docs/07-gentle-ai-workflow.md`
+9. `docs/13-onboarding.md`
+10. `docs/03-ux-ui.md`
+11. `docs/04-architecture.md`
+12. `docs/05-roadmap.md`
+13. `docs/06-acceptance-criteria.md`
+14. `docs/07-gentle-ai-workflow.md`
 
 Si el código contradice la documentación aprobada, detener la implementación y reportar la contradicción. No ampliar alcance silenciosamente.
 
@@ -56,6 +57,14 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Seguir los flujos visibles y navegación de `docs/10-navigation-and-flows.md`; no exponer operaciones incompletas.
 - Seguir `docs/11-history.md`: Historial muestra movimientos reales, no netos; anulados están ocultos por defecto y no existe restauración en el MVP.
 - Seguir `docs/12-configuration.md` para datos maestros y restricciones de activación/desactivación.
+- Seguir `docs/13-onboarding.md` para inicialización; no inferir onboarding desde cantidad de transacciones.
+- El onboarding debe poder completarse con todos los montos en cero.
+- Si el saldo disponible inicial es mayor que cero, representarlo con `OPENING_BALANCE`; si es cero, no crear una transacción de monto cero.
+- `FinancialProduct.openingBalance` representa ahorro previo y no cuenta como ingreso base ni como ahorro 20% del período.
+- Las categorías seed deben crearse de forma idempotente.
+- La confirmación final del onboarding debe ser atómica junto con `onboardingCompleted = true`.
+- No persistir parcialmente productos/categorías/transacciones por navegar entre pasos del onboarding.
+- No implementar `Reiniciar onboarding` en el MVP.
 - Categorías ordinarias sólo pueden usar `NEEDS` o `WANTS` como `defaultBucket`.
 - No crear categoría ordinaria para ahorro; `SAVING` representa el 20%.
 - No permitir desactivar un producto financiero cuyo saldo derivado sea distinto de cero.
@@ -91,6 +100,7 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Casos de `docs/08-domain-scenarios.md` relevantes al slice convertidos a tests.
 - Tests del Historial deben cubrir filtros combinables, anulados, orden estable y preservación de relaciones.
 - Tests de Configuración deben cubrir desactivación bloqueada, unicidad normalizada y preservación de histórico.
+- Tests de Onboarding deben cubrir todo en cero, productos opcionales, seed idempotente, persistencia atómica y no duplicación tras reinicio.
 - Estados vacío, error y sin base de cálculo cubiertos en UI.
 - Sin TODOs que representen funcionalidad requerida por el slice.
 
