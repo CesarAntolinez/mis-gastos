@@ -4,6 +4,12 @@
 
 Construir un MVP Android local-first para registrar y analizar finanzas personales en COP usando la metodología 50/30/20, con categorías configurables, ahorro en productos financieros simples y cuentas por cobrar.
 
+## Estado de especificación
+
+La especificación del MVP fue auditada el 25 de septiembre de 2026 y está marcada `READY FOR IMPLEMENTATION` en `docs/15-spec-audit.md`.
+
+Esto significa que Slice 0 puede comenzar. No significa que un agente pueda reinterpretar requisitos o ampliar alcance.
+
 ## Fuente de verdad
 
 Antes de implementar, leer en este orden:
@@ -20,11 +26,13 @@ Antes de implementar, leer en este orden:
 10. `docs/14-room-sqlite-schema.md`
 11. `docs/03-ux-ui.md`
 12. `docs/04-architecture.md`
-13. `docs/05-roadmap.md`
-14. `docs/06-acceptance-criteria.md`
-15. `docs/07-gentle-ai-workflow.md`
+13. `docs/adr/README.md` y los ADR vigentes aplicables
+14. `docs/05-roadmap.md`
+15. `docs/06-acceptance-criteria.md`
+16. `docs/07-gentle-ai-workflow.md`
+17. `docs/15-spec-audit.md`
 
-Si el código contradice la documentación aprobada, detener la implementación y reportar la contradicción. No ampliar alcance silenciosamente.
+Si el código contradice la documentación aprobada, detener esa decisión concreta y reportar la contradicción. No ampliar alcance silenciosamente.
 
 ## Reglas de implementación
 
@@ -95,6 +103,7 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Operaciones compuestas deben usar transacciones Room atómicas.
 - DAO puede optimizar filtros/agregaciones, pero no contener reglas financieras duplicadas.
 - ViewModel y UI no deben recalcular fórmulas financieras.
+- Respetar los ADR `Accepted`. Si una implementación necesita contradecir uno, proponer primero un ADR que lo reemplace y actualizar la especificación afectada.
 
 ## Stack objetivo
 
