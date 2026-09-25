@@ -13,11 +13,12 @@ Antes de implementar, leer en este orden:
 3. `docs/02-domain-and-data.md`
 4. `docs/08-domain-scenarios.md`
 5. `docs/09-indicators-dashboard.md`
-6. `docs/03-ux-ui.md`
-7. `docs/04-architecture.md`
-8. `docs/05-roadmap.md`
-9. `docs/06-acceptance-criteria.md`
-10. `docs/07-gentle-ai-workflow.md`
+6. `docs/10-navigation-and-flows.md`
+7. `docs/03-ux-ui.md`
+8. `docs/04-architecture.md`
+9. `docs/05-roadmap.md`
+10. `docs/06-acceptance-criteria.md`
+11. `docs/07-gentle-ai-workflow.md`
 
 Si el código contradice la documentación aprobada, detener la implementación y reportar la contradicción. No ampliar alcance silenciosamente.
 
@@ -31,14 +32,18 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - No usar `Double`/`Float` para persistencia monetaria. Persistir montos como enteros en pesos.
 - No asumir que toda entrada de dinero es ingreso base 50/30/20.
 - `TransactionNature` determina el efecto financiero; `TransactionDirection` no basta para decidir qué saldo cambia.
+- La UI nunca permite seleccionar `TransactionNature` directamente; la operación visible elegida determina la naturaleza.
 - `SAVING_WITHDRAWAL`, `OPENING_BALANCE` y reintegros del mismo mes no aumentan ingreso base.
 - `FINANCIAL_RETURN` aumenta el producto financiero y el ingreso base, pero no aumenta directamente el saldo disponible.
 - Una devolución de préstamo recibida en un mes posterior sí aumenta el ingreso base de ese nuevo mes.
+- `SAVING` implica bloque `SAVINGS/20%` y no requiere categoría ordinaria.
+- Un préstamo a terceros sólo puede clasificarse en `NEEDS` o `WANTS`.
 - El bloque 50/30/20 persistido en la transacción es la fuente de verdad histórica.
 - Cambiar una categoría no debe reescribir transacciones existentes.
 - No eliminar físicamente transacciones financieras: usar anulación lógica.
 - No permitir saldo negativo en productos financieros.
 - No permitir pagos acumulados de una cuenta por cobrar por encima del monto original.
+- No permitir reintegros acumulados de un gasto por encima de su monto original activo.
 - Los retiros de ahorro no reducen el cumplimiento 20% ya registrado en el período.
 - Semana = lunes a domingo. Mes y año son períodos calendario.
 - Las reglas de reintegro se determinan por mes calendario aunque la UI esté mostrando semana o año.
@@ -46,6 +51,8 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Para Año se recalculan objetivos sobre los totales anuales; no se promedian porcentajes mensuales.
 - Mantener diseño visual centralizado en tokens/tema.
 - Mantener una sola fuente de verdad para cálculos de indicadores: `docs/09-indicators-dashboard.md`.
+- Seguir los flujos visibles y navegación de `docs/10-navigation-and-flows.md`; no exponer operaciones incompletas.
+- Operaciones compuestas como préstamo + cuenta por cobrar y pago + actualización de pendiente deben ser atómicas.
 - DAO puede optimizar agregaciones, pero no contener reglas financieras duplicadas.
 - ViewModel y UI no deben recalcular fórmulas financieras.
 
