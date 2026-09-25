@@ -15,11 +15,12 @@ Antes de implementar, leer en este orden:
 5. `docs/09-indicators-dashboard.md`
 6. `docs/10-navigation-and-flows.md`
 7. `docs/11-history.md`
-8. `docs/03-ux-ui.md`
-9. `docs/04-architecture.md`
-10. `docs/05-roadmap.md`
-11. `docs/06-acceptance-criteria.md`
-12. `docs/07-gentle-ai-workflow.md`
+8. `docs/12-configuration.md`
+9. `docs/03-ux-ui.md`
+10. `docs/04-architecture.md`
+11. `docs/05-roadmap.md`
+12. `docs/06-acceptance-criteria.md`
+13. `docs/07-gentle-ai-workflow.md`
 
 Si el código contradice la documentación aprobada, detener la implementación y reportar la contradicción. No ampliar alcance silenciosamente.
 
@@ -54,6 +55,14 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Mantener una sola fuente de verdad para cálculos de indicadores: `docs/09-indicators-dashboard.md`.
 - Seguir los flujos visibles y navegación de `docs/10-navigation-and-flows.md`; no exponer operaciones incompletas.
 - Seguir `docs/11-history.md`: Historial muestra movimientos reales, no netos; anulados están ocultos por defecto y no existe restauración en el MVP.
+- Seguir `docs/12-configuration.md` para datos maestros y restricciones de activación/desactivación.
+- Categorías ordinarias sólo pueden usar `NEEDS` o `WANTS` como `defaultBucket`.
+- No crear categoría ordinaria para ahorro; `SAVING` representa el 20%.
+- No permitir desactivar un producto financiero cuyo saldo derivado sea distinto de cero.
+- Bloquear `openingBalance` de un producto una vez exista histórico financiero relacionado.
+- No permitir desactivar una persona con saldo pendiente por cobrar.
+- Validar unicidad de nombres activos por tipo usando `trim` + comparación case-insensitive, incluida reactivación.
+- No depender sólo de índices SQL para reglas de unicidad condicionadas por `active`.
 - Una transacción origen con dependencias activas no puede cambiar su fecha financiera.
 - Un préstamo con pagos activos bloquea monto, fecha y persona.
 - Un gasto con reintegros activos bloquea monto y fecha.
@@ -81,6 +90,7 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Tests de invariantes antes de cerrar cada slice.
 - Casos de `docs/08-domain-scenarios.md` relevantes al slice convertidos a tests.
 - Tests del Historial deben cubrir filtros combinables, anulados, orden estable y preservación de relaciones.
+- Tests de Configuración deben cubrir desactivación bloqueada, unicidad normalizada y preservación de histórico.
 - Estados vacío, error y sin base de cálculo cubiertos en UI.
 - Sin TODOs que representen funcionalidad requerida por el slice.
 
