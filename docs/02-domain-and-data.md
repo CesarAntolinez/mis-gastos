@@ -72,6 +72,8 @@ Una transacción anulada permanece persistida pero no participa en cálculos fin
 
 El bloque persistido en la transacción es la fuente de verdad histórica.
 
+`Category.defaultBucket` sólo puede usar `NEEDS` o `WANTS` en el MVP. `SAVINGS` se usa en transacciones de naturaleza `SAVING`, no como categoría ordinaria.
+
 ## Category
 
 Campos:
@@ -83,9 +85,16 @@ Campos:
 - `createdAt: Instant`
 - `updatedAt: Instant`
 
-La categoría propone un bloque por defecto, pero la transacción puede sobrescribirlo.
+La categoría propone un bloque por defecto, pero la transacción puede sobrescribirlo dentro de los valores permitidos.
 
 Cambiar `defaultBucket` no modifica transacciones existentes.
+
+Reglas de configuración:
+
+- `name.trim()` no puede quedar vacío;
+- no puede existir otra categoría activa con el mismo nombre normalizado;
+- reactivar una categoría vuelve a validar unicidad;
+- desactivar no elimina histórico ni relaciones.
 
 ## FinancialProduct
 
@@ -108,6 +117,17 @@ openingBalance + aportes + rendimientos - retiros
 
 Un retiro nunca puede producir saldo negativo.
 
+Reglas de configuración:
+
+- `openingBalance >= 0`;
+- `openingBalance` no cuenta como ingreso base ni ahorro del período;
+- `openingBalance` no afecta saldo disponible;
+- `openingBalance` queda bloqueado después de existir cualquier movimiento financiero relacionado en el histórico;
+- un producto sólo puede desactivarse si su saldo derivado actual es exactamente cero;
+- un producto inactivo conserva histórico y puede reactivarse;
+- no puede existir otro producto activo con el mismo nombre normalizado;
+- reactivar vuelve a validar unicidad.
+
 ## Person
 
 Campos:
@@ -119,6 +139,26 @@ Campos:
 - `updatedAt: Instant`
 
 No es una agenda de contactos. Sólo identifica personas relacionadas con cuentas por cobrar.
+
+Reglas de configuración:
+
+- `name.trim()` no puede quedar vacío;
+- una persona sólo puede desactivarse cuando su saldo total pendiente por cobrar sea cero;
+- desactivar conserva préstamos y pagos históricos;
+- no puede existir otra persona activa con el mismo nombre normalizado;
+- reactivar vuelve a validar unicidad.
+
+## Normalización de nombres
+
+Para validación de duplicados se usa una representación normalizada conceptual:
+
+```text
+normalizedName = trim + comparación case-insensitive
+```
+
+La capitalización original puede conservarse para presentación.
+
+La unicidad condicionada por `active` es una regla de dominio/aplicación. El diseño Room puede apoyarla con índices cuando sea viable, pero no debe asumir que un índice SQL simple reemplaza todas las validaciones de crear/reactivar.
 
 ## Receivable
 
@@ -206,7 +246,7 @@ Representa el dinero utilizable actual fuera de productos financieros. Su contra
 suma de saldos derivados de productos financieros activos e inactivos
 ```
 
-Desactivar un producto sólo evita nuevas operaciones; no elimina su saldo ni histórico.
+Un producto inactivo sólo puede existir con saldo actual cero bajo las reglas de Configuración del MVP, aunque su histórico siga participando en consultas pasadas.
 
 ### Dinero por cobrar
 
@@ -222,16 +262,23 @@ suma de saldos pendientes de Receivable activos
 4. `TransactionNature` determina el efecto contable; `TransactionDirection` no es suficiente por sí sola.
 5. Una categoría modificada no altera el histórico.
 6. El bloque almacenado en una transacción no cambia si cambia el default de la categoría.
-7. Un retiro de ahorro nunca es ingreso base.
-8. Un reintegro del mismo mes no es ingreso base.
-9. Una devolución de préstamo en un mes posterior sí es ingreso base.
-10. Un saldo inicial no es ingreso base.
-11. Un producto financiero no puede quedar con saldo negativo.
-12. Pagos acumulados de una cuenta por cobrar no superan su monto original.
-13. Una transacción `VOIDED` no participa en saldos ni indicadores normales.
-14. No se puede anular una transacción origen si existen dependencias activas que quedarían inválidas.
-15. Un retiro de ahorro no reduce retroactivamente el indicador de aportes al 20% del período.
-16. Un rendimiento financiero puede aumentar el ingreso base sin aumentar directamente el saldo disponible.
+7. `Category.defaultBucket` sólo puede ser `NEEDS` o `WANTS`.
+8. Un retiro de ahorro nunca es ingreso base.
+9. Un reintegro del mismo mes no es ingreso base.
+10. Una devolución de préstamo en un mes posterior sí es ingreso base.
+11. Un saldo inicial no es ingreso base.
+12. Un producto financiero no puede quedar con saldo negativo.
+13. Pagos acumulados de una cuenta por cobrar no superan su monto original.
+14. Una transacción `VOIDED` no participa en saldos ni indicadores normales.
+15. No se puede anular una transacción origen si existen dependencias activas que quedarían inválidas.
+16. Un retiro de ahorro no reduce retroactivamente el indicador de aportes al 20% del período.
+17. Un rendimiento financiero puede aumentar el ingreso base sin aumentar directamente el saldo disponible.
+18. Un producto financiero con saldo actual distinto de cero no puede desactivarse.
+19. `FinancialProduct.openingBalance` no puede cambiar después de existir histórico financiero relacionado.
+20. Una persona con saldo pendiente por cobrar no puede desactivarse.
+21. Categorías, productos y personas activos no pueden duplicar nombre normalizado dentro de su tipo.
+22. Reactivar una entidad vuelve a validar las mismas invariantes que crearla activa.
+23. Desactivar una entidad maestra nunca reescribe ni elimina histórico financiero.
 
 ## Persistencia
 
@@ -245,6 +292,8 @@ Se mantiene Room/SQLite como objetivo. El esquema definitivo se cerrará cuando 
 - `relatedTransactionId` cuando aplique;
 - `personId` cuando aplique;
 - `financialProductId` cuando aplique.
+
+El diseño físico deberá considerar consultas para nombres normalizados/activos sin trasladar toda la lógica de negocio a restricciones SQL.
 
 No crear índices adicionales sin una consulta concreta que los justifique.
 
