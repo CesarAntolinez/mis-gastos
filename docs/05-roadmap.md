@@ -2,188 +2,201 @@
 
 ## Principio
 
-El roadmap está diseñado como slices verticales cerrados. No avanzar al siguiente slice con funcionalidades requeridas del actual incompletas.
+El roadmap se implementa como slices verticales cerrados. No avanzar al siguiente slice con funcionalidades requeridas del actual incompletas.
 
-Cada slice debe terminar con código ejecutable, pruebas correspondientes y UX funcional.
+Cada slice debe terminar con código ejecutable, pruebas asociadas y UX funcional. Gentle-AI no debe generar estructuras anticipadas parcialmente conectadas para slices futuros.
 
 ## Slice 0 — Bootstrap técnico
 
-Objetivo: tener una app Android que compile y una base arquitectónica mínima.
+Objetivo: app Android compilable con arquitectura mínima y sistema visual centralizado.
 
 Entregables:
 
 - Proyecto Android en `app/`.
 - Kotlin + Compose + Material 3.
-- Navigation Compose configurado.
-- Tema centralizado con tokens base.
-- Estructura de paquetes definida en arquitectura.
-- `AppContainer` inicial.
-- Pantalla placeholder de Resumen y de Historial navegables.
+- Navigation Compose.
+- Tema y tokens.
+- Room configurado sin esquema funcional definitivo más allá de lo necesario.
+- AppContainer.
 - Tests configurados.
 
 Definition of Done:
 
 - Build debug exitoso.
 - Tests ejecutables.
-- Navegación entre Resumen e Historial funcional.
-- Ningún botón principal conduce a un dead-end no documentado.
+- Navegación base funcional.
 
-## Slice 1 — Dominio y persistencia de transacciones
+## Slice 1 — Núcleo de dominio y persistencia
 
-Objetivo: poder persistir correctamente el agregado Transaction sin UI final.
-
-Entregables:
-
-- Modelos de dominio.
-- Catálogo estático de categorías.
-- Validaciones.
-- Room entity, DAO, database y converters.
-- Repository.
-- CRUD cubierto por tests.
-- Queries por rango.
-
-Definition of Done:
-
-- CRUD probado.
-- Invariantes de ingreso/egreso probadas.
-- Categoría incompatible con bucket es rechazada.
-- Dinero no usa Float/Double.
-
-## Slice 2 — Registrar ingreso
-
-Objetivo: primer flujo completo de escritura desde UI hasta DB.
+Objetivo: implementar modelos e invariantes ya cerrados antes de construir UI financiera.
 
 Entregables:
 
-- Formulario de transacción.
-- Modo Ingreso funcional.
-- Monto, fecha y concepto.
-- Validación inline.
-- Guardar y volver a pantalla anterior.
-- El ingreso persiste al reiniciar app.
+- `Transaction`, dirección, naturaleza y estado.
+- `Category` configurable.
+- `FinancialProduct`.
+- `Person`.
+- `Receivable` y pagos.
+- Persistencia Room.
+- Repositories y validaciones.
+- Anulación lógica.
 
 Definition of Done:
 
-- Se puede crear un ingreso válido.
-- No se muestran bloque/categoría en modo ingreso.
-- Error de monto/fecha se muestra en el formulario.
-- UI test del flujo principal.
+- CRUD crítico probado.
+- Dinero sólo en enteros COP.
+- Cambio de categoría no modifica histórico.
+- Dependencias inválidas son rechazadas.
 
-## Slice 3 — Registrar egreso 50/30/20
+## Slice 2 — Configuración inicial y categorías
 
-Objetivo: completar la captura de transacciones.
+Objetivo: poder iniciar la app sin reconstruir movimientos históricos anteriores.
 
 Entregables:
 
-- Modo Egreso.
-- Selector de bloque Necesidades/Deseos/Ahorro.
-- Categorías filtradas por bloque.
-- Limpieza de categoría al cambiar a bloque incompatible.
-- Guardado de egreso.
+- Saldo inicial disponible.
+- Semilla de categorías iniciales.
+- Crear/editar/activar/desactivar categorías.
+- Bloque 50/30/20 por defecto por categoría.
 
 Definition of Done:
 
-- Los tres bloques pueden registrarse.
-- Sólo aparecen categorías válidas para el bloque.
-- Cambio Egreso -> Ingreso limpia datos exclusivos de egreso.
-- UI test del flujo principal.
+- Saldo inicial no participa en ingreso base.
+- Categoría desactivada no aparece en nuevos movimientos.
+- Histórico conserva categoría y bucket originales.
 
-## Slice 4 — Historial mensual
+## Slice 3 — Registro de ingresos y egresos normales
 
-Objetivo: consultar lo registrado con mes como período por defecto.
+Objetivo: flujo principal completo de escritura.
 
 Entregables:
 
-- Lista de transacciones.
-- Mes actual por defecto.
-- Navegación mes anterior/siguiente.
-- Orden descendente por fecha.
-- Estado vacío.
-- Formato COP.
+- Registrar ingreso nuevo.
+- Registrar egreso.
+- Categoría propone bucket por defecto.
+- Bucket puede sobrescribirse en la transacción.
+- Concepto opcional.
+- Fecha financiera.
 
 Definition of Done:
 
-- Sólo aparecen transacciones del mes seleccionado.
-- Ingreso/egreso se distinguen sin depender sólo de color.
-- Estado vacío conduce a registrar transacción.
+- Ingreso nuevo afecta disponible e ingreso base.
+- Egreso afecta disponible y bucket correcto.
+- Sobrescribir bucket no cambia la categoría.
 
-## Slice 5 — Edición y eliminación
+## Slice 4 — Productos financieros y ahorro
 
-Objetivo: cerrar CRUD visible antes de construir analítica.
+Objetivo: cerrar el flujo 20% sin ambigüedades contables.
 
 Entregables:
 
-- Abrir transacción desde historial.
-- Formulario precargado.
-- Actualizar.
-- Confirmar y eliminar.
+- Crear/editar/desactivar producto financiero.
+- Saldo inicial del producto.
+- Aporte de ahorro.
+- Retiro de ahorro.
+- Rendimiento financiero explícito.
 
 Definition of Done:
 
-- Edición conserva invariantes.
-- Eliminación requiere confirmación.
-- Lista se actualiza automáticamente tras cambios.
-- Tests de update/delete.
+- Aporte cuenta como 20%.
+- Retiro aumenta disponible pero no ingreso base.
+- No se permite saldo negativo.
+- Rendimiento sí aumenta ingreso base.
 
-## Slice 6 — Dashboard mensual 50/30/20
+## Slice 5 — Cuentas por cobrar
 
-Objetivo: entregar el valor central del producto para el período mensual.
+Objetivo: gestionar préstamos simples y pagos parciales.
 
 Entregables:
 
-- Total ingresos.
-- Total egresos.
-- Balance.
-- Totales Necesidades/Deseos/Ahorro.
-- Porcentajes sobre ingreso.
-- Meta y delta de cada bloque.
-- Estado sin ingresos.
-- Estado sin transacciones.
+- Personas.
+- Crear préstamo asociado a persona.
+- Varios préstamos por persona.
+- Registrar pagos parciales.
+- Saldo pendiente.
+- Estado pendiente/pagado.
+- Dinero total por cobrar.
 
 Definition of Done:
 
-- Cálculos cubiertos por unit tests.
-- Agregados Room cubiertos por tests.
-- Cambiar datos refresca dashboard sin recarga manual.
-- No aparece `0%` engañoso cuando el ingreso es cero.
+- Pagos acumulados no superan monto original.
+- Pago del mismo mes se trata como reintegro.
+- Pago de mes posterior se trata como ingreso del nuevo período.
+- La relación con el préstamo original se conserva.
 
-## Slice 7 — Semana y año
+## Slice 6 — Historial, edición y anulación
 
-Objetivo: generalizar períodos sólo después de validar la experiencia mensual.
+Objetivo: cerrar trazabilidad antes de analítica.
+
+Entregables:
+
+- Historial mensual por defecto.
+- Filtros definidos en requisitos.
+- Edición segura.
+- Anulación lógica.
+- Restricciones por dependencias.
+
+Definition of Done:
+
+- Movimientos anulados no participan en cálculos normales.
+- No se puede romper un préstamo o producto mediante edición/anulación inconsistente.
+- Histórico mantiene relaciones.
+
+## Slice 7 — Dashboard mensual e indicadores
+
+Objetivo: implementar el valor analítico central después de cerrar las fórmulas del dashboard.
+
+Entregables:
+
+- Saldo disponible.
+- Ingreso base.
+- Egresos.
+- Totales por 50/30/20.
+- Saldo ahorrado.
+- Dinero por cobrar.
+- Comparación contra metas.
+- Estados sin base de cálculo.
+
+Definition of Done:
+
+- Fórmulas cerradas en documentación antes de codificar.
+- Cálculos cubiertos por tests.
+- Entradas no computables no inflan ingreso base.
+
+## Slice 8 — Semana y año
+
+Objetivo: generalizar consulta temporal sin cambiar reglas contables mensuales.
 
 Entregables:
 
 - Selector Semana/Mes/Año.
-- Navegación anterior/siguiente para cada granularidad.
-- Resumen e historial usan el mismo período seleccionado dentro de su flujo de estado definido.
-- Rango semanal lunes-domingo.
+- Navegación entre períodos.
+- Historial e indicadores coherentes.
 
 Definition of Done:
 
-- Tests de límites de semana, mes y año.
-- Cambiar granularidad produce datos correctos.
-- Cruces de año/mes funcionan.
+- Semana = lunes-domingo.
+- Cruces de mes/año probados.
+- Cambiar granularidad no reclasifica reintegros históricos.
 
-## Slice 8 — Pulido UX/UI y release MVP
+## Slice 9 — Pulido UX/UI y release MVP
 
-Objetivo: cerrar producto sin añadir alcance funcional.
+Objetivo: cerrar el producto sin añadir alcance funcional.
 
 Entregables:
 
-- Revisión de componentes y tokens.
-- Contraste y accesibilidad básica.
-- Estados vacíos finales.
-- Iconografía consistente.
+- Revisión del design system.
+- Accesibilidad básica.
+- Estados vacíos y errores finales.
 - Revisión de textos.
-- Pruebas del flujo crítico completo.
-- README de ejecución y arquitectura actualizado.
+- Tests de flujo crítico.
+- README actualizado.
 
 Definition of Done:
 
-- No hay colores/tamaños arbitrarios relevantes fuera del sistema visual.
-- No hay TODOs de alcance MVP.
-- Todos los criterios de aceptación están satisfechos.
-- APK debug/release de prueba compila según configuración del proyecto.
+- Sin funcionalidad MVP incompleta.
+- Sin TODOs funcionales requeridos.
+- APK de prueba compila.
 
 ## Fuera del roadmap MVP
 
@@ -191,13 +204,15 @@ No introducir durante estos slices:
 
 - autenticación;
 - backend;
-- sync;
-- categorías editables;
-- presupuestos configurables distintos de 50/30/20;
-- cuentas bancarias;
-- exportación;
+- sincronización;
+- integración bancaria;
+- moneda múltiple;
+- tasas de cambio;
+- intereses automáticos;
+- agenda/sincronización de contactos;
 - notificaciones;
 - widgets;
-- moneda múltiple.
+- presupuestos distintos de 50/30/20;
+- exportación/importación en la primera versión.
 
-Cualquier propuesta de estos puntos debe registrarse como `post-MVP`, no implementarse dentro de un slice actual.
+Cualquier propuesta de estos puntos debe registrarse como post-MVP.
