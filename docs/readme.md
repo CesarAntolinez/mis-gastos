@@ -12,11 +12,12 @@ Esta carpeta es la fuente de verdad funcional y técnica del MVP.
 6. [`10-navigation-and-flows.md`](./10-navigation-and-flows.md) — navegación y flujos funcionales de Dashboard/Registro y destinos relacionados.
 7. [`11-history.md`](./11-history.md) — historial, filtros, detalle, edición, relaciones y anulación.
 8. [`12-configuration.md`](./12-configuration.md) — categorías, productos financieros, personas y reglas de activación/desactivación.
-9. [`03-ux-ui.md`](./03-ux-ui.md) — principios visuales, componentes y sistema de diseño.
-10. [`04-architecture.md`](./04-architecture.md) — stack y arquitectura objetivo.
-11. [`05-roadmap.md`](./05-roadmap.md) — slices verticales y Definition of Done.
-12. [`06-acceptance-criteria.md`](./06-acceptance-criteria.md) — comportamiento verificable del MVP.
-13. [`07-gentle-ai-workflow.md`](./07-gentle-ai-workflow.md) — uso recomendado de Opencode/Gentle-AI con SDD, ODD y RDD.
+9. [`13-onboarding.md`](./13-onboarding.md) — configuración inicial, saldos iniciales, seed de categorías y finalización atómica.
+10. [`03-ux-ui.md`](./03-ux-ui.md) — principios visuales, componentes y sistema de diseño.
+11. [`04-architecture.md`](./04-architecture.md) — stack y arquitectura objetivo.
+12. [`05-roadmap.md`](./05-roadmap.md) — slices verticales y Definition of Done.
+13. [`06-acceptance-criteria.md`](./06-acceptance-criteria.md) — comportamiento verificable del MVP.
+14. [`07-gentle-ai-workflow.md`](./07-gentle-ai-workflow.md) — uso recomendado de Opencode/Gentle-AI con SDD, ODD y RDD.
 
 ## Regla de cambio
 
