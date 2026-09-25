@@ -6,67 +6,134 @@
 
 La persona puede crear una transacción indicando:
 
-- Tipo: ingreso o egreso.
-- Monto.
-- Fecha.
+- Dirección: ingreso o egreso.
+- Naturaleza del movimiento.
+- Monto en COP.
+- Fecha financiera.
 - Concepto opcional.
-- Si es egreso: bloque 50/30/20.
-- Si es egreso: categoría predefinida.
+- Categoría cuando aplique.
+- Bloque 50/30/20 cuando aplique.
+- Persona relacionada cuando aplique.
+- Producto financiero cuando aplique.
+- Transacción relacionada cuando aplique.
 
-### RF-02 Tipos 50/30/20 predefinidos
+### RF-02 Bloques 50/30/20
 
-Los egresos deben clasificarse en una de estas opciones:
+Los egresos clasificables usan:
 
 - Necesidades — 50%.
 - Deseos — 30%.
 - Ahorro — 20%.
 
-### RF-03 Categorías predefinidas
+Los porcentajes 50/30/20 no son configurables en el MVP.
 
-Las categorías deben seleccionarse desde un catálogo local. Para el MVP:
+### RF-03 Categorías configurables
 
-Necesidades:
-- Vivienda
-- Alimentación básica
-- Transporte
+Las categorías se persisten localmente y pueden:
+
+- crearse;
+- editarse;
+- activarse;
+- desactivarse.
+
+Cada categoría tiene un bloque 50/30/20 por defecto. Una transacción puede sobrescribir ese bloque sin modificar la categoría ni otras transacciones.
+
+Cambiar el bloque por defecto de una categoría sólo afecta nuevas transacciones.
+
+Categorías iniciales sugeridas:
+
+Necesidades 50%:
+- Transporte público
+- Transporte privado
 - Salud
+- Alimentación hogar
+- Arriendo
 - Servicios
-- Educación
-- Deudas esenciales
-- Otros necesarios
+- Mantenimiento casa
+- Mantenimiento bicicleta
+- Mantenimiento computador
+- Otros gastos únicos obligatorios
 
-Deseos:
-- Restaurantes
-- Entretenimiento
-- Compras personales
-- Suscripciones
-- Viajes
-- Hobbies
-- Otros deseos
+Deseos 30%:
+- Belleza
+- Ropa
+- Snacks
+- Snacks trabajo
+- Salidas
+- Comidas por la calle
 
-Ahorro:
-- Fondo de emergencia
-- Inversión
-- Meta de ahorro
-- Pago anticipado de deuda
-- Otros ahorros
+Ahorro 20%:
+- Ahorro / inversión
 
-### RF-04 Dashboard
+### RF-04 Saldo inicial
 
-La pantalla principal muestra, para el período seleccionado:
+En la primera configuración la persona puede indicar un saldo inicial disponible. Este saldo aumenta el disponible pero no cuenta como ingreso base 50/30/20.
 
-- Total de ingresos.
-- Total de egresos.
-- Balance.
-- Monto usado en Necesidades.
-- Monto usado en Deseos.
-- Monto usado en Ahorro.
-- Porcentaje real de cada bloque respecto al ingreso.
-- Diferencia frente a la meta 50/30/20.
+### RF-05 Productos financieros
 
-### RF-05 Periodicidad
+La persona puede crear múltiples productos financieros simples con:
 
-El dashboard debe poder consultarse por:
+- nombre;
+- saldo inicial;
+- estado activo/inactivo.
+
+Un aporte desde disponible hacia un producto financiero:
+
+- disminuye disponible;
+- aumenta el saldo del producto;
+- cuenta como egreso del bloque 20%.
+
+Un retiro desde un producto hacia disponible:
+
+- aumenta disponible;
+- disminuye el saldo del producto;
+- no aumenta el ingreso base.
+
+No puede retirarse un monto superior al saldo disponible del producto.
+
+### RF-06 Rendimientos financieros
+
+Los rendimientos se registran explícitamente como ingreso nuevo. No se calculan automáticamente.
+
+### RF-07 Personas y cuentas por cobrar
+
+La persona puede crear, editar y desactivar personas relacionadas con dinero por cobrar.
+
+Un préstamo puede asociarse a una persona y admite pagos parciales.
+
+La app muestra:
+
+- monto original;
+- monto pagado;
+- saldo pendiente;
+- estado pendiente/pagado.
+
+Una persona puede tener varios préstamos independientes.
+
+### RF-08 Reintegros y devoluciones
+
+Cuando una entrada de dinero está relacionada con una salida anterior:
+
+- si ocurre en el mismo mes calendario de la salida original, se trata como reintegro y no aumenta el ingreso base;
+- si ocurre en un mes posterior, se trata como ingreso del nuevo período y sí aumenta el ingreso base.
+
+Esta regla no aplica a retiros de ahorro, que nunca se consideran ingreso nuevo.
+
+### RF-09 Dashboard
+
+La pantalla principal debe poder mostrar, según la especificación de indicadores que se cerrará posteriormente:
+
+- saldo disponible;
+- ingreso base del período;
+- egresos del período;
+- montos 50/30/20;
+- saldo total ahorrado;
+- dinero por cobrar;
+- comparación contra metas 50/30/20.
+
+### RF-10 Periodicidad
+
+Los indicadores pueden consultarse por:
 
 - Semana.
 - Mes.
@@ -74,87 +141,73 @@ El dashboard debe poder consultarse por:
 
 Mes es la vista por defecto.
 
-### RF-06 Navegación temporal
+El mes calendario sigue siendo la unidad contable usada por las reglas de reintegro aunque la visualización sea semanal o anual.
 
-La persona puede moverse al período anterior o siguiente dentro de la granularidad seleccionada.
+### RF-11 Historial
 
-### RF-07 Historial
+La persona puede consultar movimientos ordenados por fecha descendente y filtrar al menos por:
 
-La persona puede ver las transacciones del período seleccionado ordenadas por fecha descendente.
+- período;
+- ingreso/egreso;
+- bloque 50/30/20;
+- categoría;
+- persona relacionada.
 
-Cada fila debe mostrar como mínimo:
+### RF-12 Editar y anular
 
-- Tipo.
-- Monto.
-- Categoría cuando corresponda.
-- Concepto si existe.
-- Fecha.
+Una transacción puede editarse siempre que el resultado conserve las invariantes del dominio.
 
-### RF-08 Editar transacción
+La acción de eliminación visible debe implementarse internamente como anulación lógica. Una transacción anulada no participa en saldos, indicadores ni listados normales, pero permanece para trazabilidad.
 
-La persona puede modificar cualquier dato editable de una transacción existente.
+No se puede anular una transacción origen si existen dependencias activas que dejarían el dominio inconsistente.
 
-### RF-09 Eliminar transacción
+### RF-13 Persistencia
 
-La persona puede eliminar una transacción con confirmación previa.
-
-### RF-10 Persistencia
-
-Las transacciones deben permanecer disponibles después de cerrar y volver a abrir la aplicación.
+Todos los datos del MVP deben persistir localmente después de cerrar la aplicación.
 
 ## Requisitos no funcionales
 
 ### RNF-01 Offline first
 
-Todas las funciones del MVP deben funcionar sin conexión a internet.
+Todas las funciones del MVP funcionan sin conexión a internet.
 
-### RNF-02 Rendimiento
+### RNF-02 Integridad monetaria
 
-Para una base local de hasta 10.000 transacciones, abrir dashboard e historial no debe depender de cargar todos los registros en memoria.
+- Moneda única: COP.
+- Montos almacenados como enteros en pesos.
+- No usar `Float` ni `Double` para persistencia monetaria.
+- Todo monto de transacción es mayor que cero; la dirección determina el signo lógico.
 
-### RNF-03 Integridad monetaria
+### RNF-03 Rendimiento
 
-Los montos se almacenan como enteros en pesos. No se usa punto flotante para persistencia o cálculos monetarios.
+Las consultas de dashboard e historial deben filtrar y agregar desde persistencia sin requerir cargar todas las transacciones en memoria.
 
 ### RNF-04 Accesibilidad básica
 
 - Contraste suficiente.
 - Áreas táctiles adecuadas.
-- Soporte para tamaño de texto del sistema sin romper layouts principales.
-- No depender únicamente del color para comunicar estado.
+- Soporte razonable para tamaño de texto del sistema.
+- No depender únicamente del color para comunicar estados.
 
 ### RNF-05 Configuración visual centralizada
 
-Colores, tipografía, radios, espaciados y elevación deben vivir en el sistema de diseño, no dispersos por pantallas.
+Colores, tipografía, radios, espaciados y elevación viven en el sistema de diseño centralizado.
 
 ## Reglas y validaciones
 
-- Monto obligatorio y mayor que cero.
-- Tipo obligatorio.
-- Fecha obligatoria.
-- Para ingreso, bloque 50/30/20 y categoría de egreso deben ser nulos.
-- Para egreso, bloque y categoría son obligatorios.
-- La categoría elegida debe pertenecer al bloque seleccionado.
-- Concepto: opcional, máximo recomendado 120 caracteres.
-- El MVP usa una sola moneda: COP.
-- No se permiten fechas futuras para una transacción en el MVP.
+- `amount > 0`.
+- Fecha financiera obligatoria.
+- `createdAt` y `updatedAt` no sustituyen la fecha financiera.
+- Una categoría desactivada no aparece para nuevas transacciones, pero conserva su histórico.
+- Modificar una categoría no modifica transacciones históricas.
+- Un retiro de ahorro nunca aumenta el ingreso base.
+- Un saldo inicial nunca aumenta el ingreso base.
+- Los pagos acumulados de un préstamo no pueden superar el monto original pendiente.
+- El saldo de un producto financiero no puede quedar negativo.
+- Una transacción anulada no participa en cálculos.
 
-## Estados del dashboard
+## Definición de período de visualización
 
-### Sin transacciones
-
-Mostrar un estado vacío con CTA para registrar la primera transacción.
-
-### Con egresos pero sin ingresos
-
-Mostrar montos absolutos, pero no porcentajes 50/30/20. Indicar que hace falta registrar ingresos para calcular la distribución.
-
-### Con ingresos y sin egresos
-
-Mostrar 0% usado en cada bloque y balance positivo.
-
-## Definición de período
-
-- Semana: lunes 00:00 a domingo 23:59:59 según hora local.
-- Mes: primer al último día del mes calendario.
+- Semana: lunes a domingo según hora local.
+- Mes: mes calendario.
 - Año: 1 de enero a 31 de diciembre.
