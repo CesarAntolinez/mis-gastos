@@ -100,7 +100,7 @@ Resultado:
 - pago de septiembre: reintegro, no ingreso base;
 - pago de octubre: ingreso base de octubre;
 - pendiente final: $0;
-- estado: `PAID`.
+- estado derivado: `PAID`.
 
 ## Escenario 8 — Categoría reclasificada por transacción
 
@@ -188,7 +188,8 @@ Pago: octubre.
 
 Al consultar el año completo:
 
-- el pago conserva la naturaleza determinada por su relación mensual original;
+- el pago conserva `LOAN_REPAYMENT`;
+- su tratamiento de ingreso sigue determinado por la relación entre los meses de origen y pago;
 - no se convierte en reintegro sólo porque préstamo y pago aparecen dentro del mismo rango anual.
 
 ## Escenario 15 — Dashboard mensual 50/30/20
@@ -259,6 +260,13 @@ Resultado de historial:
 - el gasto aparece el 2 de septiembre;
 - la entrada de reintegro aparece el 20 de septiembre.
 
+Persistencia del reintegro:
+
+```text
+nature = REIMBURSEMENT
+relatedTransactionId = gasto del 2 de septiembre
+```
+
 ## Escenario 18 — Disponible actual no cambia al navegar historial
 
 Saldo disponible actual: $2.350.000.
@@ -304,3 +312,69 @@ Resultado anual:
 - uso del presupuesto anual: 75%.
 
 No se usa el promedio simple de los porcentajes mensuales.
+
+## Escenario 21 — Devolución tardía de gasto ordinario
+
+20 de septiembre:
+- gasto Ropa `WANTS`: $200.000.
+
+3 de octubre:
+- comercio devuelve $50.000 asociados a ese gasto.
+
+Resultado:
+
+- disponible de octubre +$50.000;
+- ingreso base de octubre +$50.000;
+- el gasto de septiembre no se reduce retroactivamente;
+- se conserva relación con el gasto original.
+
+Persistencia de la devolución:
+
+```text
+nature = NEW_INCOME
+relatedTransactionId = gasto del 20 de septiembre
+```
+
+No se persiste como `REIMBURSEMENT` porque ocurrió en un mes calendario posterior.
+
+## Escenario 22 — Movimiento dependiente con fecha anterior rechazado
+
+20 de septiembre:
+- préstamo a Juan: $100.000.
+
+Se intenta registrar un pago relacionado con fecha 15 de septiembre.
+
+Resultado:
+
+- operación rechazada;
+- no se crea `LOAN_REPAYMENT`;
+- no se crea `ReceivablePayment`;
+- pendiente permanece $100.000.
+
+La misma regla aplica a una devolución de gasto ordinario con fecha anterior al gasto origen.
+
+## Escenario 23 — Cuenta por cobrar deriva sus montos de transacciones
+
+Préstamo activo:
+
+```text
+LOAN = $200.000
+```
+
+Pagos activos:
+
+```text
+LOAN_REPAYMENT = $50.000
+LOAN_REPAYMENT = $30.000
+```
+
+Resultado derivado:
+
+```text
+originalAmount = $200.000
+paidAmount     = $80.000
+pendingAmount  = $120.000
+status         = PENDING
+```
+
+`Receivable` no almacena una segunda copia de `$200.000` ni del pendiente.
