@@ -17,11 +17,12 @@ Antes de implementar, leer en este orden:
 7. `docs/11-history.md`
 8. `docs/12-configuration.md`
 9. `docs/13-onboarding.md`
-10. `docs/03-ux-ui.md`
-11. `docs/04-architecture.md`
-12. `docs/05-roadmap.md`
-13. `docs/06-acceptance-criteria.md`
-14. `docs/07-gentle-ai-workflow.md`
+10. `docs/14-room-sqlite-schema.md`
+11. `docs/03-ux-ui.md`
+12. `docs/04-architecture.md`
+13. `docs/05-roadmap.md`
+14. `docs/06-acceptance-criteria.md`
+15. `docs/07-gentle-ai-workflow.md`
 
 Si el código contradice la documentación aprobada, detener la implementación y reportar la contradicción. No ampliar alcance silenciosamente.
 
@@ -39,6 +40,9 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - `SAVING_WITHDRAWAL`, `OPENING_BALANCE` y reintegros del mismo mes no aumentan ingreso base.
 - `FINANCIAL_RETURN` aumenta el producto financiero y el ingreso base, pero no aumenta directamente el saldo disponible.
 - Una devolución de préstamo recibida en un mes posterior sí aumenta el ingreso base de ese nuevo mes.
+- Una devolución tardía de gasto ordinario se persiste como `NEW_INCOME` relacionada con el gasto origen.
+- Un pago de préstamo siempre conserva `LOAN_REPAYMENT`; su participación en ingreso base se deriva por mes.
+- No permitir que una devolución o pago relacionado tenga fecha anterior a su origen.
 - `SAVING` implica bloque `SAVINGS/20%` y no requiere categoría ordinaria.
 - Un préstamo a terceros sólo puede clasificarse en `NEEDS` o `WANTS`.
 - El bloque 50/30/20 persistido en la transacción es la fuente de verdad histórica.
@@ -46,7 +50,7 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - No eliminar físicamente transacciones financieras: usar anulación lógica.
 - No permitir saldo negativo en productos financieros.
 - No permitir pagos acumulados de una cuenta por cobrar por encima del monto original.
-- No permitir reintegros acumulados de un gasto por encima de su monto original activo.
+- No permitir reintegros/devoluciones acumulados de un gasto por encima del monto original activo.
 - Los retiros de ahorro no reducen el cumplimiento 20% ya registrado en el período.
 - Semana = lunes a domingo. Mes y año son períodos calendario.
 - Las reglas de reintegro se determinan por mes calendario aunque la UI esté mostrando semana o año.
@@ -58,6 +62,17 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Seguir `docs/11-history.md`: Historial muestra movimientos reales, no netos; anulados están ocultos por defecto y no existe restauración en el MVP.
 - Seguir `docs/12-configuration.md` para datos maestros y restricciones de activación/desactivación.
 - Seguir `docs/13-onboarding.md` para inicialización; no inferir onboarding desde cantidad de transacciones.
+- Seguir exactamente `docs/14-room-sqlite-schema.md` para entidades, foreign keys, índices, converters y operaciones atómicas. No inventar columnas/tablas paralelas sin actualizar primero la especificación.
+- `transactions` es la fuente de verdad de monto, fecha y concepto de movimientos financieros.
+- `receivables` no duplica `originalAmount`, fecha, concepto, pendiente ni estado persistido.
+- `receivable_payments` no duplica monto ni fecha del pago.
+- No persistir saldos de productos, saldos pendientes ni totales de Dashboard como columnas mutables.
+- Enums Room se persisten como `TEXT` por nombre, nunca por ordinal.
+- `LocalDate` se persiste como ISO `YYYY-MM-DD`; `Instant` como epoch milliseconds.
+- Usar foreign keys restrictivas; no cascadas para borrar histórico financiero.
+- No usar triggers de negocio en v1.
+- `@Database(exportSchema = true)` y schemas exportados deben versionarse.
+- No usar `fallbackToDestructiveMigration` como estrategia de producto.
 - El onboarding debe poder completarse con todos los montos en cero.
 - Si el saldo disponible inicial es mayor que cero, representarlo con `OPENING_BALANCE`; si es cero, no crear una transacción de monto cero.
 - `FinancialProduct.openingBalance` representa ahorro previo y no cuenta como ingreso base ni como ahorro 20% del período.
@@ -77,8 +92,8 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Un gasto con reintegros activos bloquea monto y fecha.
 - No implementar anulación en cascada automática de relaciones financieras.
 - El detalle de un movimiento debe consumir un efecto financiero calculado en dominio; la UI no interpreta manualmente la naturaleza.
-- Operaciones compuestas como préstamo + cuenta por cobrar y pago + actualización de pendiente deben ser atómicas.
-- DAO puede optimizar agregaciones, pero no contener reglas financieras duplicadas.
+- Operaciones compuestas deben usar transacciones Room atómicas.
+- DAO puede optimizar filtros/agregaciones, pero no contener reglas financieras duplicadas.
 - ViewModel y UI no deben recalcular fórmulas financieras.
 
 ## Stack objetivo
@@ -89,18 +104,20 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Room
 - Coroutines + Flow
 - ViewModel
-- Inyección manual mediante `AppContainer` para evitar complejidad innecesaria
+- Inyección manual mediante `AppContainer`
 
 ## Calidad mínima
 
 - Compilación limpia.
 - Tests unitarios para reglas de ingreso base, reintegros, ahorro, productos financieros, cuentas por cobrar e indicadores 50/30/20.
-- Tests de persistencia Room para CRUD, filtros y agregaciones críticas.
+- Tests de persistencia Room para converters, foreign keys, CRUD, filtros, agregaciones y operaciones atómicas críticas.
 - Tests de invariantes antes de cerrar cada slice.
 - Casos de `docs/08-domain-scenarios.md` relevantes al slice convertidos a tests.
 - Tests del Historial deben cubrir filtros combinables, anulados, orden estable y preservación de relaciones.
 - Tests de Configuración deben cubrir desactivación bloqueada, unicidad normalizada y preservación de histórico.
 - Tests de Onboarding deben cubrir todo en cero, productos opcionales, seed idempotente, persistencia atómica y no duplicación tras reinicio.
+- Tests Room deben cubrir exclusión de `VOIDED`, derivación de receivables y clasificación mismo/otro mes.
+- Desde Database v2, toda migración debe tener test.
 - Estados vacío, error y sin base de cálculo cubiertos en UI.
 - Sin TODOs que representen funcionalidad requerida por el slice.
 
