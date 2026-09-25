@@ -392,6 +392,70 @@ Dado un slice marcado como terminado,
 cuando se ejecutan sus pruebas y se recorre el flujo,
 entonces no existen controles requeridos que conduzcan a funcionalidades incompletas o placeholders.
 
+## AC-61 Onboarding con estado inicial cero
+
+Dada una instalación nueva,
+cuando la persona completa onboarding con saldo disponible `$0` y sin productos financieros,
+entonces el onboarding finaliza correctamente, `onboardingCompleted = true` y no se crea una transacción de monto cero.
+
+## AC-62 Opening balance disponible
+
+Dado un saldo disponible inicial mayor que cero,
+cuando se confirma el onboarding,
+entonces se crea una transacción `OPENING_BALANCE` con la fecha local de confirmación, aumenta el disponible y no aumenta ingreso base ni indicadores 50/30/20.
+
+## AC-63 Ahorro inicial de producto
+
+Dado un producto financiero creado durante onboarding con `openingBalance > 0`,
+cuando se confirma,
+entonces dicho saldo aumenta el producto pero no modifica disponible, ingreso base ni cumplimiento 20% del período.
+
+## AC-64 Productos opcionales
+
+Dada una instalación nueva,
+cuando la persona decide no agregar productos financieros durante onboarding,
+entonces puede continuar y usar normalmente la aplicación.
+
+## AC-65 Seed idempotente
+
+Dado que la inicialización de categorías se ejecuta más de una vez por reintento seguro,
+cuando se completa,
+entonces no existen categorías seed duplicadas.
+
+## AC-66 Finalización atómica del onboarding
+
+Dado un onboarding listo para confirmar,
+cuando falla cualquier escritura de categorías seed, `OPENING_BALANCE`, productos iniciales o `AppSetup`,
+entonces `onboardingCompleted` no queda marcado como `true` y no queda una configuración parcial confirmada.
+
+## AC-67 Estado explícito de onboarding
+
+Dado un usuario que completó onboarding con todos los montos en cero,
+cuando vuelve a abrir la app,
+entonces la aplicación entra al flujo principal porque consulta `AppSetup` o equivalente y no infiere el estado desde la existencia de transacciones.
+
+## AC-68 Cierre antes de confirmar
+
+Dado un onboarding no confirmado,
+cuando la app se cierra y vuelve a abrir,
+entonces puede reiniciar el onboarding sin haber creado productos, categorías seed o movimientos financieros parcialmente persistidos por navegar entre pasos.
+
+## AC-69 Corrección de saldo inicial
+
+Dado un `OPENING_BALANCE` inicial y ningún movimiento financiero posterior,
+cuando se corrige su monto,
+entonces el saldo disponible se recalcula sin convertir la corrección en ingreso base.
+
+Dado que ya existe un movimiento financiero posterior,
+cuando se intenta corregir el saldo inicial,
+entonces la operación se bloquea.
+
+## AC-70 Onboarding fuera del back stack
+
+Dado que el onboarding se confirma correctamente,
+cuando se navega al Dashboard y la persona pulsa Atrás,
+entonces no regresa al onboarding.
+
 ## Criterio de salida
 
 El MVP sólo se considera terminado cuando los criterios aplicables están satisfechos y todos los slices definidos en `05-roadmap.md` cumplen su Definition of Done.
