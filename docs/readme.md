@@ -13,12 +13,14 @@ Esta carpeta es la fuente de verdad funcional y técnica del MVP.
 7. [`11-history.md`](./11-history.md) — historial, filtros, detalle, edición, relaciones y anulación.
 8. [`12-configuration.md`](./12-configuration.md) — categorías, productos financieros, personas y reglas de activación/desactivación.
 9. [`13-onboarding.md`](./13-onboarding.md) — configuración inicial, saldos iniciales, seed de categorías y finalización atómica.
-10. [`14-room-sqlite-schema.md`](./14-room-sqlite-schema.md) — esquema físico v1 de Room/SQLite, foreign keys, índices, converters, consultas y operaciones atómicas.
+10. [`14-room-sqlite-schema.md`](./14-room-sqlite-schema.md) — esquema físico Room/SQLite v1, foreign keys, converters, índices y operaciones atómicas.
 11. [`03-ux-ui.md`](./03-ux-ui.md) — principios visuales, componentes y sistema de diseño.
 12. [`04-architecture.md`](./04-architecture.md) — stack y arquitectura objetivo.
-13. [`05-roadmap.md`](./05-roadmap.md) — slices verticales y Definition of Done.
-14. [`06-acceptance-criteria.md`](./06-acceptance-criteria.md) — comportamiento verificable del MVP.
-15. [`07-gentle-ai-workflow.md`](./07-gentle-ai-workflow.md) — uso recomendado de Opencode/Gentle-AI con SDD, ODD y RDD.
+13. [`adr/README.md`](./adr/README.md) — decisiones técnicas aceptadas.
+14. [`05-roadmap.md`](./05-roadmap.md) — slices verticales y Definition of Done.
+15. [`06-acceptance-criteria.md`](./06-acceptance-criteria.md) — comportamiento verificable del MVP.
+16. [`07-gentle-ai-workflow.md`](./07-gentle-ai-workflow.md) — uso recomendado de Opencode/Gentle-AI con SDD, ODD y RDD.
+17. [`15-spec-audit.md`](./15-spec-audit.md) — auditoría final y estado de preparación para implementación.
 
 ## Regla de cambio
 
@@ -27,3 +29,7 @@ Cuando cambie el comportamiento esperado del producto, actualizar primero la esp
 No ampliar alcance desde una implementación sin reflejar el cambio en esta documentación.
 
 Los cambios al esquema Room/SQLite requieren actualizar `14-room-sqlite-schema.md` y, una vez exista una versión instalada con datos que deban preservarse, una migración explícita y testeada.
+
+## Estado actual
+
+La especificación del MVP fue auditada el 25 de septiembre de 2026 y está marcada `READY FOR IMPLEMENTATION` en `15-spec-audit.md`.
