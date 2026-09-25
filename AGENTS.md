@@ -2,7 +2,7 @@
 
 ## Objetivo del proyecto
 
-Construir un MVP Android local-first para registrar ingresos y egresos y analizar el uso del ingreso mediante la regla 50/30/20.
+Construir un MVP Android local-first para registrar y analizar finanzas personales en COP usando la metodología 50/30/20, con categorías configurables, ahorro en productos financieros simples y cuentas por cobrar.
 
 ## Fuente de verdad
 
@@ -11,11 +11,12 @@ Antes de implementar, leer en este orden:
 1. `docs/00-product-brief.md`
 2. `docs/01-requirements.md`
 3. `docs/02-domain-and-data.md`
-4. `docs/03-ux-ui.md`
-5. `docs/04-architecture.md`
-6. `docs/05-roadmap.md`
-7. `docs/06-acceptance-criteria.md`
-8. `docs/07-gentle-ai-workflow.md`
+4. `docs/08-domain-scenarios.md`
+5. `docs/03-ux-ui.md`
+6. `docs/04-architecture.md`
+7. `docs/05-roadmap.md`
+8. `docs/06-acceptance-criteria.md`
+9. `docs/07-gentle-ai-workflow.md`
 
 Si el código contradice la documentación aprobada, detener la implementación y reportar la contradicción. No ampliar alcance silenciosamente.
 
@@ -23,14 +24,22 @@ Si el código contradice la documentación aprobada, detener la implementación 
 
 - Implementar únicamente el slice activo del roadmap.
 - No dejar botones, pantallas, rutas, repositorios o casos de uso parcialmente conectados.
-- Un slice sólo se considera terminado cuando cumple su Definition of Done y sus criterios de aceptación.
-- No introducir backend, autenticación, sincronización en nube, exportación, notificaciones ni edición de categorías en el MVP.
-- No usar `Double`/`Float` para dinero. Persistir montos como enteros en pesos.
-- Los ingresos no pertenecen a un bloque 50/30/20. Los egresos sí.
-- Si un período no tiene ingresos, no calcular porcentajes 50/30/20; mostrar estado sin base de cálculo.
-- Semana = lunes a domingo; mes y año = períodos calendario según la zona horaria local del dispositivo.
-- Mantener el diseño visual centralizado en tokens/tema. No codificar colores, radios, espaciados o tipografía de forma dispersa.
-- Mantener una sola fuente de verdad para cálculos de indicadores; UI y tests deben consumir la misma lógica de dominio.
+- Un slice sólo se considera terminado cuando cumple su Definition of Done y criterios de aceptación.
+- No introducir backend, autenticación, sincronización en nube, exportación, notificaciones ni moneda múltiple en el MVP.
+- Usar exclusivamente COP.
+- No usar `Double`/`Float` para persistencia monetaria. Persistir montos como enteros en pesos.
+- No asumir que toda entrada de dinero es ingreso base 50/30/20.
+- `SAVING_WITHDRAWAL`, `OPENING_BALANCE` y reintegros del mismo mes no aumentan ingreso base.
+- Una devolución de préstamo recibida en un mes posterior sí aumenta el ingreso base de ese nuevo mes.
+- El bloque 50/30/20 persistido en la transacción es la fuente de verdad histórica.
+- Cambiar una categoría no debe reescribir transacciones existentes.
+- No eliminar físicamente transacciones financieras: usar anulación lógica.
+- No permitir saldo negativo en productos financieros.
+- No permitir pagos acumulados de una cuenta por cobrar por encima del monto original.
+- Semana = lunes a domingo. Mes y año son períodos calendario.
+- Las reglas de reintegro se determinan por mes calendario aunque la UI esté mostrando semana o año.
+- Mantener diseño visual centralizado en tokens/tema.
+- Mantener una sola fuente de verdad para cálculos de indicadores.
 
 ## Stack objetivo
 
@@ -40,14 +49,15 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Room
 - Coroutines + Flow
 - ViewModel
-- Inyección manual mediante `AppContainer` para evitar complejidad innecesaria en el MVP
+- Inyección manual mediante `AppContainer` para evitar complejidad innecesaria
 
 ## Calidad mínima
 
 - Compilación limpia.
-- Tests unitarios para reglas 50/30/20 y agregaciones por período.
+- Tests unitarios para reglas de ingreso base, reintegros, ahorro, productos financieros y cuentas por cobrar.
 - Tests de persistencia Room para CRUD crítico.
-- Estados vacío, error y sin ingresos cubiertos en UI.
+- Tests de invariantes antes de cerrar cada slice.
+- Estados vacío, error y sin base de cálculo cubiertos en UI.
 - Sin TODOs que representen funcionalidad requerida por el slice.
 
 ## Convenciones de trabajo
