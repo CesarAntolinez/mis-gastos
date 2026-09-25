@@ -126,45 +126,125 @@ entonces la operación se bloquea y la UI explica qué relación impide el cambi
 
 Dado que se abre Historial,
 cuando no se ha cambiado la granularidad,
-entonces comienza en el mes actual y ordena movimientos por fecha financiera descendente.
+entonces comienza en el mes actual, muestra sólo movimientos activos por defecto y ordena por fecha financiera descendente con `createdAt DESC` como segundo criterio.
 
-## AC-22 Historial prefiltrado desde Dashboard
+## AC-22 Historial muestra movimientos reales
+
+Dado un gasto y un reintegro relacionado,
+cuando se consulta el Historial,
+entonces ambos movimientos aparecen por separado en sus fechas financieras reales aunque el Dashboard utilice el costo efectivo neto.
+
+## AC-23 Historial prefiltrado desde Dashboard
 
 Dado que la persona toca una tarjeta 50/30/20 del Dashboard,
 cuando se abre Historial,
 entonces conserva el período seleccionado y muestra un filtro explícito correspondiente que puede eliminarse sin perder el período.
 
-## AC-23 Períodos de visualización
+## AC-24 Filtros combinables
+
+Dado un Historial con búsqueda y uno o más filtros,
+cuando se aplican simultáneamente,
+entonces sólo aparecen movimientos que cumplen la combinación y cada filtro activo es visible/removible.
+
+## AC-25 Búsqueda de historial
+
+Dado un texto de búsqueda,
+cuando coincide con concepto, categoría, persona o producto financiero,
+entonces el movimiento correspondiente puede encontrarse sin requerir búsqueda avanzada o fuzzy.
+
+## AC-26 Estado de movimientos anulados
+
+Dado un movimiento `VOIDED`,
+cuando se abre Historial con estado por defecto,
+entonces el movimiento no aparece.
+
+Cuando se filtra por `Anulados` o `Todos`, entonces puede consultarse y muestra una etiqueta textual `Anulado`.
+
+## AC-27 Detalle de movimiento
+
+Dado un movimiento activo,
+cuando se abre su detalle,
+entonces se muestran sus datos aplicables, relaciones y un efecto financiero derivado por dominio, no recalculado manualmente por la UI.
+
+## AC-28 Relación navegable
+
+Dado un préstamo con pagos o un gasto con reintegros,
+cuando se abre el detalle del origen o dependiente,
+entonces las relaciones relevantes son visibles y permiten navegar entre movimientos relacionados.
+
+## AC-29 Préstamo con pagos bloquea edición estructural
+
+Dado un préstamo con al menos un pago activo,
+cuando se intenta editar,
+entonces monto, fecha financiera y persona no pueden modificarse; los campos no estructurales sólo pueden cambiar si conservan invariantes.
+
+## AC-30 Gasto con reintegros bloquea edición estructural
+
+Dado un gasto con al menos un reintegro activo,
+cuando se intenta editar,
+entonces monto y fecha financiera no pueden modificarse; otros campos sólo pueden cambiar si conservan invariantes.
+
+## AC-31 Fecha de origen con dependencias
+
+Dada una transacción origen con dependencias activas,
+cuando la persona intenta cambiar la fecha financiera,
+entonces la UI bloquea la operación para evitar reclasificación contable retroactiva de pagos/reintegros.
+
+## AC-32 Sin anulación en cascada
+
+Dada una transacción con dependencias activas,
+cuando se intenta anular el origen,
+entonces no se anulan automáticamente los movimientos relacionados; la operación se bloquea y se explica qué debe resolverse primero.
+
+## AC-33 Anulado sólo lectura
+
+Dado un movimiento anulado,
+cuando se abre su detalle,
+entonces se presenta sólo lectura y no existen acciones de Editar, Restaurar ni Anular nuevamente.
+
+## AC-34 Estado vacío por período
+
+Dado un período sin movimientos,
+cuando se abre Historial,
+entonces se muestra un estado vacío con acción `+ Registrar`.
+
+## AC-35 Estado vacío por filtros
+
+Dado un período con movimientos que quedan ocultos por búsqueda/filtros,
+cuando no existen resultados visibles,
+entonces la UI ofrece `Limpiar filtros` y no trata el caso como si nunca existieran movimientos.
+
+## AC-36 Períodos de visualización
 
 Dado el selector de período,
 cuando se elige Semana, Mes o Año,
 entonces se usan los rangos calendario definidos y no se reinterpretan las naturalezas históricas de las transacciones.
 
-## AC-24 Sin ingreso base
+## AC-37 Sin ingreso base
 
 Dado un período con egresos o entradas no computables pero sin ingreso base,
 cuando se muestran indicadores 50/30/20,
 entonces no se presenta un `0%` engañoso y se indica que no existe base de cálculo.
 
-## AC-25 Saldo disponible actual
+## AC-38 Saldo disponible actual
 
 Dado cualquier período histórico seleccionado,
 cuando se muestra el Dashboard,
 entonces `Disponible actual` representa el saldo actual global y no cambia únicamente por navegar a otro período histórico.
 
-## AC-26 Estado actual diferenciado
+## AC-39 Estado actual diferenciado
 
 Dado un período histórico seleccionado,
 cuando se muestran Disponible, Ahorrado y Por cobrar,
 entonces la UI los identifica visualmente como estado actual/hoy y no como cifras pertenecientes al período histórico.
 
-## AC-27 Ingreso base
+## AC-40 Ingreso base
 
 Dado un período con múltiples clases de entrada,
 cuando se calcula `baseIncome`,
 entonces sólo participan las naturalezas y relaciones autorizadas por `09-indicators-dashboard.md`.
 
-## AC-28 Necesidades
+## AC-41 Necesidades
 
 Dado un período con ingreso base,
 cuando se calcula Necesidades,
@@ -176,7 +256,7 @@ entonces:
 - se muestra uso respecto al objetivo;
 - se muestra restante o exceso.
 
-## AC-29 Deseos
+## AC-42 Deseos
 
 Dado un período con ingreso base,
 cuando se calcula Deseos,
@@ -188,25 +268,25 @@ entonces:
 - se muestra uso respecto al objetivo;
 - se muestra restante o exceso.
 
-## AC-30 Ahorro del período
+## AC-43 Ahorro del período
 
 Dado un período con aportes y retiros de ahorro,
 cuando se calcula el indicador 20%,
 entonces sólo los aportes `SAVING` suman al cumplimiento del período y los retiros no restan ese cumplimiento.
 
-## AC-31 Saldo total ahorrado
+## AC-44 Saldo total ahorrado
 
 Dados uno o más productos financieros,
 cuando se calcula el ahorro actual,
 entonces se suman saldos iniciales, aportes y rendimientos, y se restan retiros, incluyendo productos inactivos que conservan saldo/histórico.
 
-## AC-32 Dinero por cobrar
+## AC-45 Dinero por cobrar
 
 Dadas cuentas por cobrar con pagos parciales,
 cuando se muestra el total por cobrar,
 entonces corresponde a la suma de montos originales menos pagos activos.
 
-## AC-33 Estados Necesidades/Deseos
+## AC-46 Estados Necesidades/Deseos
 
 Dado un objetivo válido,
 cuando el uso del presupuesto es menor a 80%,
@@ -218,7 +298,7 @@ entonces es `EXCEEDED`.
 
 Sin ingreso base el estado es `NO_BASE`.
 
-## AC-34 Estados Ahorro
+## AC-47 Estados Ahorro
 
 Dado un objetivo de ahorro válido,
 cuando el cumplimiento es menor a 80%,
@@ -230,7 +310,7 @@ entonces es `TARGET_MET`.
 
 Sin ingreso base el estado es `NO_BASE`.
 
-## AC-35 Reintegro cruzando semanas
+## AC-48 Reintegro cruzando semanas
 
 Dado un gasto y su reintegro en semanas distintas pero dentro del mismo mes calendario,
 cuando se consultan indicadores,
@@ -238,75 +318,75 @@ entonces el reintegro corrige el costo efectivo del gasto original y no genera u
 
 El historial conserva ambas fechas reales.
 
-## AC-36 Cálculo anual
+## AC-49 Cálculo anual
 
 Dado un año seleccionado,
 cuando se calculan 50/30/20,
 entonces los objetivos se derivan directamente del ingreso base anual y no del promedio de porcentajes mensuales.
 
-## AC-37 Flujo de caja del período
+## AC-50 Flujo de caja del período
 
 Dado un período,
 cuando se muestra un resumen de entradas/salidas,
 entonces `periodCashIn` y `periodCashOut` reflejan movimientos que cambian disponible, sin confundirse con `baseIncome`.
 
-## AC-38 Navegación principal
+## AC-51 Navegación principal
 
 Dada la aplicación después del onboarding,
 cuando se muestra la navegación principal,
 entonces existen únicamente los destinos `Resumen`, `Historial` y `Configuración`, con acción global `+ Registrar` desde Resumen e Historial.
 
-## AC-39 Selector de operación
+## AC-52 Selector de operación
 
 Dado que la persona toca `+ Registrar`,
 cuando se muestran las operaciones disponibles,
 entonces se usan nombres comprensibles (`Ingreso`, `Gasto`, `Ahorrar`, etc.) y nunca se solicita elegir manualmente un `TransactionNature`.
 
-## AC-40 Operación no disponible
+## AC-53 Operación no disponible
 
 Dada una operación que requiere una entidad previa inexistente,
 cuando la persona intenta iniciarla,
 entonces la UI ofrece una acción previa válida o un estado vacío explicativo y no abre un formulario imposible de completar.
 
-## AC-41 Guardado atómico
+## AC-54 Guardado atómico
 
 Dado un flujo que crea varias entidades relacionadas, como préstamo + cuenta por cobrar o pago + registro de pago,
 cuando ocurre un error durante el guardado,
 entonces no queda una parte de la operación persistida sin su contraparte.
 
-## AC-42 Preservación de navegación
+## AC-55 Preservación de navegación
 
-Dado un Historial con período/filtros activos,
+Dado un Historial con período, búsqueda o filtros activos,
 cuando la persona abre un detalle y vuelve,
 entonces conserva el estado razonable del Historial durante la sesión.
 
 Después de guardar desde `+ Registrar`, la app vuelve al destino de origen sin duplicar destinos principales en el back stack.
 
-## AC-43 Sin destinos muertos
+## AC-56 Sin destinos muertos
 
 Dado cualquier control navegable visible en una funcionalidad marcada como terminada,
 cuando la persona lo toca,
 entonces llega a un flujo funcional o a un estado definido, nunca a un placeholder no documentado.
 
-## AC-44 Persistencia offline
+## AC-57 Persistencia offline
 
 Dado un dispositivo sin conexión,
 cuando la persona registra, consulta, edita o anula datos del MVP,
 entonces todas las operaciones siguen funcionando localmente.
 
-## AC-45 Tema centralizado
+## AC-58 Tema centralizado
 
 Dada cualquier pantalla,
 cuando se revisa su implementación,
 entonces colores, tipografía, shapes y spacing principales provienen del sistema visual centralizado.
 
-## AC-46 Fuente única de cálculos
+## AC-59 Fuente única de cálculos
 
 Dado cualquier indicador del Dashboard,
 cuando se revisa su implementación,
 entonces las fórmulas se resuelven en una única capa de dominio conforme a `09-indicators-dashboard.md`; ViewModel y UI no duplican reglas de cálculo.
 
-## AC-47 Calidad de slice
+## AC-60 Calidad de slice
 
 Dado un slice marcado como terminado,
 cuando se ejecutan sus pruebas y se recorre el flujo,
