@@ -2,6 +2,8 @@
 
 Este documento fija ejemplos que deben poder convertirse en tests. Si una implementación produce un resultado distinto, debe revisarse contra estas reglas antes de modificar el comportamiento.
 
+Las fórmulas canónicas de indicadores están en [`09-indicators-dashboard.md`](./09-indicators-dashboard.md).
+
 ## Escenario 1 — Ingreso nuevo
 
 - Nómina: +$5.000.000.
@@ -42,14 +44,14 @@ El hecho de que el dinero se hubiera ahorrado en otro mes no transforma el retir
 
 ## Escenario 4 — Rendimiento financiero
 
-- Capital registrado: $1.000.000.
+- Saldo producto: $1.000.000.
 - Rendimiento explícito: $100.000.
 
 Resultado:
 
-- el rendimiento se registra como `FINANCIAL_RETURN`;
-- aumenta el valor financiero correspondiente;
-- aumenta el ingreso base en $100.000.
+- `FINANCIAL_RETURN` aumenta el producto a $1.100.000;
+- ingreso base +$100.000;
+- saldo disponible no cambia directamente.
 
 ## Escenario 5 — Préstamo y devolución en el mismo mes
 
@@ -188,3 +190,117 @@ Al consultar el año completo:
 
 - el pago conserva la naturaleza determinada por su relación mensual original;
 - no se convierte en reintegro sólo porque préstamo y pago aparecen dentro del mismo rango anual.
+
+## Escenario 15 — Dashboard mensual 50/30/20
+
+Datos:
+
+- ingreso base: $5.000.000;
+- Necesidades efectivas: $2.200.000;
+- Deseos efectivos: $1.600.000;
+- aportes a ahorro: $800.000.
+
+Resultado Necesidades:
+
+- objetivo: $2.500.000;
+- 44% del ingreso;
+- 88% del presupuesto;
+- $300.000 restantes;
+- estado `NEAR_LIMIT`.
+
+Resultado Deseos:
+
+- objetivo: $1.500.000;
+- 32% del ingreso;
+- 106,67% del presupuesto;
+- $100.000 de exceso;
+- estado `EXCEEDED`.
+
+Resultado Ahorro:
+
+- objetivo: $1.000.000;
+- 16% del ingreso;
+- 80% de cumplimiento;
+- faltan $200.000;
+- estado `NEAR_TARGET`.
+
+## Escenario 16 — Retiro no reduce el cumplimiento de ahorro
+
+Datos del mes:
+
+- ingreso base: $4.000.000;
+- aporte a ahorro: $1.000.000;
+- retiro de ahorro: $600.000.
+
+Resultado:
+
+- objetivo 20%: $800.000;
+- ahorro del período: $1.000.000;
+- cumplimiento: 125%;
+- cambio neto del producto por estas operaciones: +$400.000;
+- el retiro no reduce el cumplimiento del período.
+
+## Escenario 17 — Reintegro en otra semana del mismo mes
+
+2 de septiembre:
+- gasto Salud `NEEDS`: $200.000.
+
+20 de septiembre:
+- reintegro relacionado: $50.000.
+
+Resultado de indicadores:
+
+- costo efectivo del gasto original: $150.000;
+- la semana de devolución no muestra `-$50.000` como gasto del bucket;
+- el reintegro no aumenta ingreso base.
+
+Resultado de historial:
+
+- el gasto aparece el 2 de septiembre;
+- la entrada de reintegro aparece el 20 de septiembre.
+
+## Escenario 18 — Disponible actual no cambia al navegar historial
+
+Saldo disponible actual: $2.350.000.
+
+La persona cambia Dashboard de septiembre a agosto.
+
+Resultado:
+
+- `Disponible actual` sigue mostrando $2.350.000;
+- ingreso base y 50/30/20 cambian al rango de agosto.
+
+## Escenario 19 — Flujo de caja no equivale a ingreso base
+
+Durante octubre:
+
+- nómina `NEW_INCOME`: +$3.000.000;
+- retiro de ahorro: +$500.000.
+
+Resultado:
+
+- `periodCashIn = $3.500.000`;
+- `baseIncome = $3.000.000`.
+
+El retiro de ahorro aumenta efectivo disponible, pero no la base 50/30/20.
+
+## Escenario 20 — Cálculo anual directo
+
+Ingresos base:
+
+- enero: $1.000.000;
+- febrero: $3.000.000.
+
+Necesidades:
+
+- enero: $600.000;
+- febrero: $900.000.
+
+Resultado anual:
+
+- ingreso base anual: $4.000.000;
+- objetivo Necesidades anual: $2.000.000;
+- Necesidades reales: $1.500.000;
+- uso del presupuesto anual: 75%.
+
+No se usa el promedio simple de los porcentajes mensuales.
