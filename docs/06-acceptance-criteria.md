@@ -16,7 +16,7 @@ entonces aumenta el disponible pero no el ingreso base 50/30/20.
 
 Dada una categoría,
 cuando se crea o edita,
-entonces tiene un bloque 50/30/20 por defecto configurable sin modificar código.
+entonces tiene un bloque por defecto permitido sin modificar código.
 
 ## AC-04 Histórico de categoría
 
@@ -40,7 +40,7 @@ entonces aumenta el saldo disponible y el ingreso base del período.
 
 Dado un producto financiero válido,
 cuando se registra un aporte desde disponible,
-entonces disminuye disponible, aumenta el producto y el movimiento cuenta dentro del 20% del período.
+entonces disminuye disponible, aumenta el producto y el movimiento cuenta dentro del 20% del período sin requerir una categoría ordinaria.
 
 ## AC-08 Retiro de ahorro
 
@@ -64,7 +64,9 @@ entonces aumenta el saldo del producto y el ingreso base, pero no aumenta direct
 
 Dada una persona registrada,
 cuando se crea un préstamo,
-entonces existe una cuenta por cobrar asociada y el saldo pendiente inicia en el monto original.
+entonces existe una transacción `LOAN` y una cuenta por cobrar asociada dentro de una única operación atómica, y el saldo pendiente inicia en el monto original.
+
+El préstamo sólo puede clasificarse en `NEEDS` o `WANTS`.
 
 ## AC-12 Pago parcial
 
@@ -92,59 +94,77 @@ entonces aumenta disponible, no aumenta ingreso base y reduce el gasto efectivo 
 
 ## AC-16 Devolución en mes posterior
 
-Dado un préstamo realizado en un mes anterior,
+Dada una salida o préstamo realizado en un mes anterior,
 cuando se recibe su devolución en un mes posterior,
-entonces aumenta disponible y el pago se considera ingreso base del nuevo mes, conservando la relación con el préstamo original.
+entonces aumenta disponible y se considera entrada computable del nuevo mes según las reglas de dominio, conservando la relación con el movimiento original.
 
-## AC-17 Retiro de ahorro en otro mes
+## AC-17 Límite de reintegro
+
+Dado un gasto original activo,
+cuando la suma de reintegros activos intentaría superar su monto original,
+entonces la operación se rechaza.
+
+## AC-18 Retiro de ahorro en otro mes
 
 Dado un ahorro realizado en cualquier mes anterior,
 cuando se retira en un mes posterior,
 entonces el retiro sigue sin considerarse ingreso base y no reduce retroactivamente el aporte 20% realizado en el período original.
 
-## AC-18 Anulación lógica
+## AC-19 Anulación lógica
 
 Dada una transacción activa,
 cuando se anula válidamente,
 entonces cambia a estado `VOIDED`, permanece en persistencia y deja de participar en cálculos financieros normales.
 
-## AC-19 Dependencias activas
+## AC-20 Dependencias activas
 
 Dada una transacción origen con movimientos dependientes activos,
 cuando su edición o anulación dejaría inconsistencias,
-entonces la operación se bloquea o se exige resolver primero las dependencias.
+entonces la operación se bloquea y la UI explica qué relación impide el cambio.
 
-## AC-20 Historial mensual por defecto
+## AC-21 Historial mensual por defecto
 
 Dado que se abre Historial,
 cuando no se ha cambiado la granularidad,
 entonces comienza en el mes actual y ordena movimientos por fecha financiera descendente.
 
-## AC-21 Períodos de visualización
+## AC-22 Historial prefiltrado desde Dashboard
+
+Dado que la persona toca una tarjeta 50/30/20 del Dashboard,
+cuando se abre Historial,
+entonces conserva el período seleccionado y muestra un filtro explícito correspondiente que puede eliminarse sin perder el período.
+
+## AC-23 Períodos de visualización
 
 Dado el selector de período,
 cuando se elige Semana, Mes o Año,
 entonces se usan los rangos calendario definidos y no se reinterpretan las naturalezas históricas de las transacciones.
 
-## AC-22 Sin ingreso base
+## AC-24 Sin ingreso base
 
 Dado un período con egresos o entradas no computables pero sin ingreso base,
 cuando se muestran indicadores 50/30/20,
 entonces no se presenta un `0%` engañoso y se indica que no existe base de cálculo.
 
-## AC-23 Saldo disponible actual
+## AC-25 Saldo disponible actual
 
 Dado cualquier período histórico seleccionado,
 cuando se muestra el Dashboard,
 entonces `Disponible actual` representa el saldo actual global y no cambia únicamente por navegar a otro período histórico.
 
-## AC-24 Ingreso base
+## AC-26 Estado actual diferenciado
+
+Dado un período histórico seleccionado,
+cuando se muestran Disponible, Ahorrado y Por cobrar,
+entonces la UI los identifica visualmente como estado actual/hoy y no como cifras pertenecientes al período histórico.
+
+## AC-27 Ingreso base
 
 Dado un período con múltiples clases de entrada,
 cuando se calcula `baseIncome`,
-entonces sólo participan `NEW_INCOME`, `FINANCIAL_RETURN` y devoluciones de préstamos cuya fecha de pago pertenece a un mes posterior al préstamo original.
+entonces sólo participan las naturalezas y relaciones autorizadas por `09-indicators-dashboard.md`.
 
-## AC-25 Necesidades
+## AC-28 Necesidades
 
 Dado un período con ingreso base,
 cuando se calcula Necesidades,
@@ -156,7 +176,7 @@ entonces:
 - se muestra uso respecto al objetivo;
 - se muestra restante o exceso.
 
-## AC-26 Deseos
+## AC-29 Deseos
 
 Dado un período con ingreso base,
 cuando se calcula Deseos,
@@ -168,25 +188,25 @@ entonces:
 - se muestra uso respecto al objetivo;
 - se muestra restante o exceso.
 
-## AC-27 Ahorro del período
+## AC-30 Ahorro del período
 
 Dado un período con aportes y retiros de ahorro,
 cuando se calcula el indicador 20%,
 entonces sólo los aportes `SAVING` suman al cumplimiento del período y los retiros no restan ese cumplimiento.
 
-## AC-28 Saldo total ahorrado
+## AC-31 Saldo total ahorrado
 
 Dados uno o más productos financieros,
 cuando se calcula el ahorro actual,
 entonces se suman saldos iniciales, aportes y rendimientos, y se restan retiros, incluyendo productos inactivos que conservan saldo/histórico.
 
-## AC-29 Dinero por cobrar
+## AC-32 Dinero por cobrar
 
 Dadas cuentas por cobrar con pagos parciales,
 cuando se muestra el total por cobrar,
 entonces corresponde a la suma de montos originales menos pagos activos.
 
-## AC-30 Estados Necesidades/Deseos
+## AC-33 Estados Necesidades/Deseos
 
 Dado un objetivo válido,
 cuando el uso del presupuesto es menor a 80%,
@@ -198,7 +218,7 @@ entonces es `EXCEEDED`.
 
 Sin ingreso base el estado es `NO_BASE`.
 
-## AC-31 Estados Ahorro
+## AC-34 Estados Ahorro
 
 Dado un objetivo de ahorro válido,
 cuando el cumplimiento es menor a 80%,
@@ -210,7 +230,7 @@ entonces es `TARGET_MET`.
 
 Sin ingreso base el estado es `NO_BASE`.
 
-## AC-32 Reintegro cruzando semanas
+## AC-35 Reintegro cruzando semanas
 
 Dado un gasto y su reintegro en semanas distintas pero dentro del mismo mes calendario,
 cuando se consultan indicadores,
@@ -218,37 +238,75 @@ entonces el reintegro corrige el costo efectivo del gasto original y no genera u
 
 El historial conserva ambas fechas reales.
 
-## AC-33 Cálculo anual
+## AC-36 Cálculo anual
 
 Dado un año seleccionado,
 cuando se calculan 50/30/20,
 entonces los objetivos se derivan directamente del ingreso base anual y no del promedio de porcentajes mensuales.
 
-## AC-34 Flujo de caja del período
+## AC-37 Flujo de caja del período
 
 Dado un período,
 cuando se muestra un resumen de entradas/salidas,
 entonces `periodCashIn` y `periodCashOut` reflejan movimientos que cambian disponible, sin confundirse con `baseIncome`.
 
-## AC-35 Persistencia offline
+## AC-38 Navegación principal
+
+Dada la aplicación después del onboarding,
+cuando se muestra la navegación principal,
+entonces existen únicamente los destinos `Resumen`, `Historial` y `Configuración`, con acción global `+ Registrar` desde Resumen e Historial.
+
+## AC-39 Selector de operación
+
+Dado que la persona toca `+ Registrar`,
+cuando se muestran las operaciones disponibles,
+entonces se usan nombres comprensibles (`Ingreso`, `Gasto`, `Ahorrar`, etc.) y nunca se solicita elegir manualmente un `TransactionNature`.
+
+## AC-40 Operación no disponible
+
+Dada una operación que requiere una entidad previa inexistente,
+cuando la persona intenta iniciarla,
+entonces la UI ofrece una acción previa válida o un estado vacío explicativo y no abre un formulario imposible de completar.
+
+## AC-41 Guardado atómico
+
+Dado un flujo que crea varias entidades relacionadas, como préstamo + cuenta por cobrar o pago + registro de pago,
+cuando ocurre un error durante el guardado,
+entonces no queda una parte de la operación persistida sin su contraparte.
+
+## AC-42 Preservación de navegación
+
+Dado un Historial con período/filtros activos,
+cuando la persona abre un detalle y vuelve,
+entonces conserva el estado razonable del Historial durante la sesión.
+
+Después de guardar desde `+ Registrar`, la app vuelve al destino de origen sin duplicar destinos principales en el back stack.
+
+## AC-43 Sin destinos muertos
+
+Dado cualquier control navegable visible en una funcionalidad marcada como terminada,
+cuando la persona lo toca,
+entonces llega a un flujo funcional o a un estado definido, nunca a un placeholder no documentado.
+
+## AC-44 Persistencia offline
 
 Dado un dispositivo sin conexión,
 cuando la persona registra, consulta, edita o anula datos del MVP,
 entonces todas las operaciones siguen funcionando localmente.
 
-## AC-36 Tema centralizado
+## AC-45 Tema centralizado
 
 Dada cualquier pantalla,
 cuando se revisa su implementación,
 entonces colores, tipografía, shapes y spacing principales provienen del sistema visual centralizado.
 
-## AC-37 Fuente única de cálculos
+## AC-46 Fuente única de cálculos
 
 Dado cualquier indicador del Dashboard,
 cuando se revisa su implementación,
 entonces las fórmulas se resuelven en una única capa de dominio conforme a `09-indicators-dashboard.md`; ViewModel y UI no duplican reglas de cálculo.
 
-## AC-38 Calidad de slice
+## AC-47 Calidad de slice
 
 Dado un slice marcado como terminado,
 cuando se ejecutan sus pruebas y se recorre el flujo,
