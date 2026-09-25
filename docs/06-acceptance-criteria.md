@@ -38,9 +38,9 @@ entonces aumenta el saldo disponible y el ingreso base del período.
 
 ## AC-07 Aporte a ahorro
 
-Dado un producto financiero con saldo suficiente para aceptar aportes,
+Dado un producto financiero válido,
 cuando se registra un aporte desde disponible,
-entonces disminuye disponible, aumenta el producto y el movimiento cuenta dentro del 20%.
+entonces disminuye disponible, aumenta el producto y el movimiento cuenta dentro del 20% del período.
 
 ## AC-08 Retiro de ahorro
 
@@ -58,7 +58,7 @@ entonces la operación es rechazada y no se persiste parcialmente.
 
 Dado un rendimiento registrado explícitamente,
 cuando se guarda,
-entonces aumenta el saldo correspondiente y se considera ingreso nuevo según el flujo definido.
+entonces aumenta el saldo del producto y el ingreso base, pero no aumenta directamente el saldo disponible.
 
 ## AC-11 Préstamo a una persona
 
@@ -88,7 +88,7 @@ entonces la operación es rechazada.
 
 Dada una salida y una devolución relacionada dentro del mismo mes calendario,
 cuando se registra la devolución,
-entonces aumenta disponible, no aumenta ingreso base y reduce el gasto efectivo del mes según las fórmulas que se cierren para indicadores.
+entonces aumenta disponible, no aumenta ingreso base y reduce el gasto efectivo asociado al origen.
 
 ## AC-16 Devolución en mes posterior
 
@@ -100,7 +100,7 @@ entonces aumenta disponible y el pago se considera ingreso base del nuevo mes, c
 
 Dado un ahorro realizado en cualquier mes anterior,
 cuando se retira en un mes posterior,
-entonces el retiro sigue sin considerarse ingreso base.
+entonces el retiro sigue sin considerarse ingreso base y no reduce retroactivamente el aporte 20% realizado en el período original.
 
 ## AC-18 Anulación lógica
 
@@ -130,21 +130,125 @@ entonces se usan los rangos calendario definidos y no se reinterpretan las natur
 
 Dado un período con egresos o entradas no computables pero sin ingreso base,
 cuando se muestran indicadores 50/30/20,
-entonces no se presenta un 0% engañoso y se indica que no existe base de cálculo.
+entonces no se presenta un `0%` engañoso y se indica que no existe base de cálculo.
 
-## AC-23 Persistencia offline
+## AC-23 Saldo disponible actual
+
+Dado cualquier período histórico seleccionado,
+cuando se muestra el Dashboard,
+entonces `Disponible actual` representa el saldo actual global y no cambia únicamente por navegar a otro período histórico.
+
+## AC-24 Ingreso base
+
+Dado un período con múltiples clases de entrada,
+cuando se calcula `baseIncome`,
+entonces sólo participan `NEW_INCOME`, `FINANCIAL_RETURN` y devoluciones de préstamos cuya fecha de pago pertenece a un mes posterior al préstamo original.
+
+## AC-25 Necesidades
+
+Dado un período con ingreso base,
+cuando se calcula Necesidades,
+entonces:
+
+- el objetivo es 50% del ingreso base;
+- el monto usa gasto efectivo neto de reintegros válidos del mismo mes;
+- se muestra participación respecto al ingreso;
+- se muestra uso respecto al objetivo;
+- se muestra restante o exceso.
+
+## AC-26 Deseos
+
+Dado un período con ingreso base,
+cuando se calcula Deseos,
+entonces:
+
+- el objetivo es 30% del ingreso base;
+- el monto usa gasto efectivo neto de reintegros válidos del mismo mes;
+- se muestra participación respecto al ingreso;
+- se muestra uso respecto al objetivo;
+- se muestra restante o exceso.
+
+## AC-27 Ahorro del período
+
+Dado un período con aportes y retiros de ahorro,
+cuando se calcula el indicador 20%,
+entonces sólo los aportes `SAVING` suman al cumplimiento del período y los retiros no restan ese cumplimiento.
+
+## AC-28 Saldo total ahorrado
+
+Dados uno o más productos financieros,
+cuando se calcula el ahorro actual,
+entonces se suman saldos iniciales, aportes y rendimientos, y se restan retiros, incluyendo productos inactivos que conservan saldo/histórico.
+
+## AC-29 Dinero por cobrar
+
+Dadas cuentas por cobrar con pagos parciales,
+cuando se muestra el total por cobrar,
+entonces corresponde a la suma de montos originales menos pagos activos.
+
+## AC-30 Estados Necesidades/Deseos
+
+Dado un objetivo válido,
+cuando el uso del presupuesto es menor a 80%,
+entonces el estado es `WITHIN`;
+cuando está entre 80% y 100% inclusive,
+entonces es `NEAR_LIMIT`;
+cuando supera 100%,
+entonces es `EXCEEDED`.
+
+Sin ingreso base el estado es `NO_BASE`.
+
+## AC-31 Estados Ahorro
+
+Dado un objetivo de ahorro válido,
+cuando el cumplimiento es menor a 80%,
+entonces el estado es `IN_PROGRESS`;
+cuando está entre 80% inclusive y menos de 100%,
+entonces es `NEAR_TARGET`;
+cuando alcanza o supera 100%,
+entonces es `TARGET_MET`.
+
+Sin ingreso base el estado es `NO_BASE`.
+
+## AC-32 Reintegro cruzando semanas
+
+Dado un gasto y su reintegro en semanas distintas pero dentro del mismo mes calendario,
+cuando se consultan indicadores,
+entonces el reintegro corrige el costo efectivo del gasto original y no genera una métrica de gasto negativo en la semana de devolución.
+
+El historial conserva ambas fechas reales.
+
+## AC-33 Cálculo anual
+
+Dado un año seleccionado,
+cuando se calculan 50/30/20,
+entonces los objetivos se derivan directamente del ingreso base anual y no del promedio de porcentajes mensuales.
+
+## AC-34 Flujo de caja del período
+
+Dado un período,
+cuando se muestra un resumen de entradas/salidas,
+entonces `periodCashIn` y `periodCashOut` reflejan movimientos que cambian disponible, sin confundirse con `baseIncome`.
+
+## AC-35 Persistencia offline
 
 Dado un dispositivo sin conexión,
 cuando la persona registra, consulta, edita o anula datos del MVP,
 entonces todas las operaciones siguen funcionando localmente.
 
-## AC-24 Tema centralizado
+## AC-36 Tema centralizado
 
 Dada cualquier pantalla,
 cuando se revisa su implementación,
 entonces colores, tipografía, shapes y spacing principales provienen del sistema visual centralizado.
 
-## AC-25 Calidad de slice
+## AC-37 Fuente única de cálculos
+
+Dado cualquier indicador del Dashboard,
+cuando se revisa su implementación,
+entonces las fórmulas se resuelven en una única capa de dominio conforme a `09-indicators-dashboard.md`; ViewModel y UI no duplican reglas de cálculo.
+
+## AC-38 Calidad de slice
 
 Dado un slice marcado como terminado,
 cuando se ejecutan sus pruebas y se recorre el flujo,
