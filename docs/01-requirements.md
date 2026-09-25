@@ -185,27 +185,49 @@ El mes calendario sigue siendo la unidad contable usada por las reglas de reinte
 
 ### RF-11 Historial
 
-La persona puede consultar movimientos ordenados por fecha financiera descendente y filtrar al menos por:
+El Historial sigue el contrato de `11-history.md` y muestra movimientos reales, no resultados neteados.
 
-- período;
-- dirección/entrada-salida;
-- bloque 50/30/20;
-- categoría;
-- naturaleza;
-- persona relacionada;
-- producto financiero cuando aplique.
+Debe:
+
+- iniciar en el mes actual;
+- ordenar por `transactionDate DESC` y luego `createdAt DESC`;
+- agrupar por fecha financiera;
+- ocultar movimientos anulados por defecto;
+- permitir búsqueda textual simple;
+- permitir filtros por período, dirección/entrada-salida, bloque 50/30/20, categoría, naturaleza, persona, producto financiero y estado;
+- combinar búsqueda y filtros;
+- conservar período y filtros razonablemente durante la sesión al entrar y salir de Detalle.
 
 Cuando Historial se abre desde Dashboard con un filtro, dicho filtro debe ser visible y removible sin perder el período seleccionado.
 
-### RF-12 Editar y anular
+El Historial conserva por separado gasto y reintegro aunque el Dashboard utilice el gasto efectivo neto.
+
+### RF-12 Detalle, edición y anulación
+
+El detalle de un movimiento muestra sus datos, relaciones y un `Efecto financiero` calculado por dominio.
 
 Una transacción puede editarse siempre que el resultado conserve las invariantes del dominio.
 
-La acción de eliminación visible debe implementarse internamente como anulación lógica. Una transacción anulada no participa en saldos, indicadores ni listados normales, pero permanece para trazabilidad.
+Reglas conservadoras del MVP:
+
+- una transacción origen con dependencias activas no puede cambiar fecha financiera;
+- un préstamo con pagos activos bloquea monto, fecha y persona;
+- un gasto con reintegros activos bloquea monto y fecha;
+- categoría, bucket y concepto sólo pueden editarse cuando la naturaleza y relaciones lo permitan sin romper invariantes.
+
+La acción visible debe ser `Anular movimiento`. Internamente se usa anulación lógica.
+
+Una transacción anulada:
+
+- permanece persistida;
+- deja de participar en saldos e indicadores;
+- está oculta por defecto en Historial;
+- puede consultarse mediante filtro;
+- abre detalle sólo lectura.
+
+No existe restauración ni anulación en cascada automática en el MVP.
 
 No se puede anular una transacción origen si existen dependencias activas que dejarían el dominio inconsistente.
-
-Los campos cuya edición rompería relaciones deben bloquearse y explicar el motivo.
 
 ### RF-13 Navegación principal
 
@@ -251,6 +273,8 @@ Todas las funciones del MVP funcionan sin conexión a internet.
 
 Las consultas de dashboard e historial deben filtrar y agregar desde persistencia sin requerir cargar todas las transacciones en memoria.
 
+Los filtros básicos de Historial no deben implementarse cargando todos los movimientos para filtrarlos posteriormente en UI.
+
 ### RNF-04 Accesibilidad básica
 
 - Contraste suficiente.
@@ -276,6 +300,7 @@ Colores, tipografía, radios, espaciados y elevación viven en el sistema de dis
 - El saldo de un producto financiero no puede quedar negativo.
 - Una transacción anulada no participa en cálculos.
 - La UI no permite seleccionar `TransactionNature` directamente.
+- Los anulados no pueden editarse ni restaurarse en el MVP.
 
 ## Definición de período de visualización
 
