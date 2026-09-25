@@ -79,7 +79,12 @@ No se requiere una categoría artificial de ahorro: `SAVING` implica el bloque 2
 
 ### RF-04 Saldo inicial
 
-En la primera configuración la persona puede indicar un saldo inicial disponible. Este saldo aumenta el disponible pero no cuenta como ingreso base 50/30/20.
+En el onboarding la persona puede indicar un saldo disponible inicial mayor o igual a cero.
+
+- Si el monto es mayor que cero, se representa con una transacción `OPENING_BALANCE` fechada automáticamente el día local en que se confirma el onboarding.
+- Si el monto es cero, no se crea una transacción de monto cero.
+- El saldo inicial aumenta el disponible pero nunca cuenta como ingreso base 50/30/20.
+- Sólo puede corregirse antes de existir movimientos financieros posteriores de uso normal.
 
 ### RF-05 Productos financieros
 
@@ -104,6 +109,8 @@ Un retiro desde un producto hacia disponible:
 - no reduce el cumplimiento de ahorro ya realizado del período.
 
 No puede retirarse un monto superior al saldo disponible del producto.
+
+`FinancialProduct.openingBalance` representa ahorro previo a la app y no aumenta disponible, ingreso base ni ahorro 20% del período.
 
 ### RF-06 Rendimientos financieros
 
@@ -241,14 +248,24 @@ La acción global `+ Registrar` está disponible desde Resumen e Historial.
 
 No deben exponerse opciones de registro cuya persistencia, validaciones y flujo completo aún no estén implementados.
 
-### RF-14 Configuración inicial
+### RF-14 Onboarding y configuración inicial
 
-Antes del uso normal se permite configurar:
+El onboarding sigue `13-onboarding.md` y se completa una sola vez antes del uso normal.
 
-- saldo disponible inicial;
-- productos financieros iniciales y sus saldos, opcionalmente.
+Permite configurar:
 
-Las categorías iniciales se crean automáticamente y luego pueden personalizarse.
+- saldo disponible inicial, incluyendo `$0`;
+- cero o más productos financieros iniciales y sus saldos.
+
+Las categorías iniciales se crean automáticamente de forma idempotente al confirmar.
+
+La confirmación final debe ser atómica: categorías seed, `OPENING_BALANCE` cuando corresponda, productos iniciales y `onboardingCompleted = true` se guardan como una única operación lógica.
+
+Debe existir un estado explícito `AppSetup` o equivalente con `onboardingCompleted`; no se infiere desde cantidad de transacciones u otras entidades.
+
+Si la app se cierra antes de confirmar, el MVP puede descartar el borrador y volver a iniciar onboarding. No debe haber persistencia parcial por navegar entre pasos.
+
+No existe `Reiniciar onboarding` en el MVP.
 
 ### RF-15 Persistencia
 
@@ -268,6 +285,7 @@ Todas las funciones del MVP funcionan sin conexión a internet.
 - Montos almacenados como enteros en pesos.
 - No usar `Float` ni `Double` para persistencia monetaria.
 - Todo monto de transacción es mayor que cero; la naturaleza/dirección define su efecto.
+- Saldos iniciales configurables pueden ser cero, pero no negativos.
 
 ### RNF-03 Rendimiento
 
@@ -288,19 +306,22 @@ Colores, tipografía, radios, espaciados y elevación viven en el sistema de dis
 
 ## Reglas y validaciones
 
-- `amount > 0`.
+- `amount > 0` para transacciones persistidas.
 - Fecha financiera obligatoria.
 - `createdAt` y `updatedAt` no sustituyen la fecha financiera.
 - Una categoría desactivada no aparece para nuevas transacciones, pero conserva su histórico.
 - Modificar una categoría no modifica transacciones históricas.
 - Un retiro de ahorro nunca aumenta el ingreso base.
 - Un saldo inicial nunca aumenta el ingreso base.
+- `FinancialProduct.openingBalance` nunca cuenta como ahorro del período.
 - Los pagos acumulados de un préstamo no pueden superar el monto original pendiente.
 - Los reintegros acumulados de un gasto no pueden superar el monto original activo.
 - El saldo de un producto financiero no puede quedar negativo.
 - Una transacción anulada no participa en cálculos.
 - La UI no permite seleccionar `TransactionNature` directamente.
 - Los anulados no pueden editarse ni restaurarse en el MVP.
+- No crear transacción `OPENING_BALANCE` con monto cero.
+- Las categorías seed no pueden duplicarse por reintentos de inicialización.
 
 ## Definición de período de visualización
 
