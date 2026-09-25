@@ -14,11 +14,12 @@ Antes de implementar, leer en este orden:
 4. `docs/08-domain-scenarios.md`
 5. `docs/09-indicators-dashboard.md`
 6. `docs/10-navigation-and-flows.md`
-7. `docs/03-ux-ui.md`
-8. `docs/04-architecture.md`
-9. `docs/05-roadmap.md`
-10. `docs/06-acceptance-criteria.md`
-11. `docs/07-gentle-ai-workflow.md`
+7. `docs/11-history.md`
+8. `docs/03-ux-ui.md`
+9. `docs/04-architecture.md`
+10. `docs/05-roadmap.md`
+11. `docs/06-acceptance-criteria.md`
+12. `docs/07-gentle-ai-workflow.md`
 
 Si el código contradice la documentación aprobada, detener la implementación y reportar la contradicción. No ampliar alcance silenciosamente.
 
@@ -52,6 +53,12 @@ Si el código contradice la documentación aprobada, detener la implementación 
 - Mantener diseño visual centralizado en tokens/tema.
 - Mantener una sola fuente de verdad para cálculos de indicadores: `docs/09-indicators-dashboard.md`.
 - Seguir los flujos visibles y navegación de `docs/10-navigation-and-flows.md`; no exponer operaciones incompletas.
+- Seguir `docs/11-history.md`: Historial muestra movimientos reales, no netos; anulados están ocultos por defecto y no existe restauración en el MVP.
+- Una transacción origen con dependencias activas no puede cambiar su fecha financiera.
+- Un préstamo con pagos activos bloquea monto, fecha y persona.
+- Un gasto con reintegros activos bloquea monto y fecha.
+- No implementar anulación en cascada automática de relaciones financieras.
+- El detalle de un movimiento debe consumir un efecto financiero calculado en dominio; la UI no interpreta manualmente la naturaleza.
 - Operaciones compuestas como préstamo + cuenta por cobrar y pago + actualización de pendiente deben ser atómicas.
 - DAO puede optimizar agregaciones, pero no contener reglas financieras duplicadas.
 - ViewModel y UI no deben recalcular fórmulas financieras.
@@ -70,9 +77,10 @@ Si el código contradice la documentación aprobada, detener la implementación 
 
 - Compilación limpia.
 - Tests unitarios para reglas de ingreso base, reintegros, ahorro, productos financieros, cuentas por cobrar e indicadores 50/30/20.
-- Tests de persistencia Room para CRUD y agregaciones críticas.
+- Tests de persistencia Room para CRUD, filtros y agregaciones críticas.
 - Tests de invariantes antes de cerrar cada slice.
 - Casos de `docs/08-domain-scenarios.md` relevantes al slice convertidos a tests.
+- Tests del Historial deben cubrir filtros combinables, anulados, orden estable y preservación de relaciones.
 - Estados vacío, error y sin base de cálculo cubiertos en UI.
 - Sin TODOs que representen funcionalidad requerida por el slice.
 
