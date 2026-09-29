@@ -56,6 +56,7 @@ Salvo que una decisión posterior lo incorpore explícitamente, el MVP no preten
 - `docs/product/vision.md`: propósito, límites y modelo contable del producto.
 - `docs/product/domain-rules.md`: semántica financiera e invariantes del dominio.
 - `docs/product/budgeting.md`: fórmulas de presupuesto 50/30/20, períodos y estados.
+- `docs/product/configuration.md`: reglas de categorías, productos financieros, personas y semilla inicial.
 - `docs/product/roadmap.md`: capacidades y orden de evolución.
 - `docs/development/workflow.md`: cómo una decisión de producto llega a implementación.
 - `docs/architecture/decisions/009-financial-accounting-semantics.md`: decisiones de arquitectura que fundamentan la semántica contable.
