@@ -1,10 +1,9 @@
 # ADR-009 — Financial accounting semantics for Operations + Entries
 
-**Status:** proposed
+**Status:** accepted
 **Date:** 2026-09-29
 
-> **Owner acceptance is required before this ADR can supersede or amend ADR-007.**
-> This document records the approved *drafting direction* for review; it is not an accepted architecture decision.
+> **Accepted by the owner.** This decision refines and supersedes ADR-007 for financial accounting semantics.
 
 ## Decision in one sentence
 

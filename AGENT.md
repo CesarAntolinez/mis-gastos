@@ -14,6 +14,10 @@ This is recorded in:
 - `docs/architecture/decisions/002-persistence.md`
 - `docs/architecture/decisions/003-state-management.md`
 
+Financial accounting semantics are recorded in:
+
+- `docs/architecture/decisions/009-financial-accounting-semantics.md`
+
 The legacy Kotlin/Room specification (`docs/00-product-brief.md` through `docs/15-spec-audit.md`) and the legacy ADR index (`docs/adr/README.md`) are historical reference only. Do not use them as current implementation authority.
 
 ## Canonical project context
