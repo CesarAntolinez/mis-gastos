@@ -1,5 +1,21 @@
 # Agent context — Mis Gastos
 
+## Canonical stack
+
+The active platform and architecture direction is:
+
+- **Flutter + Dart** for mobile UI, domain, and runtime;
+- **SQLite + Drift** for local persistence;
+- **Riverpod** for shared state and dependency composition.
+
+This is recorded in:
+
+- `docs/architecture/decisions/001-mobile-framework.md`
+- `docs/architecture/decisions/002-persistence.md`
+- `docs/architecture/decisions/003-state-management.md`
+
+The legacy Kotlin/Room specification (`docs/00-product-brief.md` through `docs/15-spec-audit.md`) and the legacy ADR index (`docs/adr/README.md`) are historical reference only. Do not use them as current implementation authority.
+
 ## Canonical project context
 
 Before making product, domain, architecture, persistence, navigation, or UX decisions, read the relevant canonical documents:
@@ -8,6 +24,7 @@ Before making product, domain, architecture, persistence, navigation, or UX deci
 - `docs/product/domain-rules.md`
 - `docs/product/roadmap.md`
 - `docs/development/workflow.md`
+- `docs/architecture/decisions/` for accepted technical decisions
 
 Do not replace these sources with assumptions from the current implementation.
 
