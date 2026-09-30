@@ -44,6 +44,7 @@ Capacidades:
 - movimientos hacia y desde ahorro/productos financieros;
 - registro de reintegros;
 - registro de préstamos y pagos recibidos;
+- navegación principal y selector de operaciones desde `+ Registrar` conforme a [`navigation.md`](./navigation.md);
 - validaciones y estados necesarios para evitar registros ambiguos.
 
 Criterio de salida: los movimientos cotidianos pueden registrarse con una semántica consistente y producir un disponible explicable.
@@ -59,7 +60,8 @@ Capacidades:
 - clasificación visible del movimiento;
 - origen del dinero cuando corresponda;
 - relación con movimientos previos;
-- filtros básicos que resulten necesarios para navegar el historial.
+- filtros básicos que resulten necesarios para navegar el historial;
+- apertura desde Dashboard con período y prefiltros removibles, y navegación hacia atrás conforme a [`navigation.md`](./navigation.md).
 
 Criterio de salida: el usuario puede explicar por qué cambió su disponible consultando el historial.
 
