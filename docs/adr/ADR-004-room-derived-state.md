@@ -1,6 +1,8 @@
 # ADR-004 — Room/SQLite y estado financiero derivado
 
-- Estado: `Accepted`
+> **Histórico / legacy.** Este ADR pertenece a la era Kotlin/Room del proyecto y **ya no es autoridad de implementación activa**. El principio "estado financiero derivado de datos fuente" sigue vigente en [`docs/architecture/decisions/002-persistence.md`](../architecture/decisions/002-persistence.md) (SQLite + Drift) y en [`docs/architecture/decisions/009-financial-accounting-semantics.md`](../architecture/decisions/009-financial-accounting-semantics.md). Las convenciones Room específicas (`@Database(exportSchema = true)`, DAOs, converters, etc.) están obsoletas para la implementación actual.
+
+- Estado: `Accepted` (en su momento, era Kotlin/Room)
 - Fecha: 2026-09-25
 
 ## Contexto

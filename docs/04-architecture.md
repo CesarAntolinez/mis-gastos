@@ -1,5 +1,13 @@
 # 04 — Arquitectura
 
+> **Histórico — Kotlin/Room.**
+> Este documento describe la arquitectura objetivo original del MVP para Android nativo con Kotlin, Jetpack Compose y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** [`docs/architecture/decisions/001-mobile-framework.md`](./architecture/decisions/001-mobile-framework.md) (Flutter + Dart), [`docs/architecture/decisions/002-persistence.md`](./architecture/decisions/002-persistence.md) (SQLite + Drift), [`docs/architecture/decisions/003-state-management.md`](./architecture/decisions/003-state-management.md) (Riverpod).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 ## Objetivo
 
 Mantener un MVP Android pequeño, testeable y fácil de modificar mediante agentes, sin introducir capas o dependencias innecesarias.

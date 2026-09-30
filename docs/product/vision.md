@@ -51,6 +51,16 @@ El MVP contempla como capacidades principales:
 
 Salvo que una decisión posterior lo incorpore explícitamente, el MVP no pretende ser un sistema de contabilidad formal, banca en línea, conciliación bancaria automática, plataforma de crédito ni sistema multiusuario.
 
+## Operación local y offline-first
+
+El MVP funciona completamente en el dispositivo sin conexión de red:
+
+- No requiere login, cuenta de usuario, backend ni sincronización.
+- Todos los movimientos, saldos e indicadores se calculan localmente sobre la base de datos del dispositivo.
+- No hay respaldo automático en la nube, exportación/importación ni multi-dispositivo en el alcance inicial.
+
+Si en el futuro se aprueba sincronización, multi-dispositivo o respaldo remoto, se requerirá una decisión de producto y arquitectura explícita; no están contemplados en el MVP.
+
 ## Fuentes de verdad
 
 - `docs/product/vision.md`: propósito, límites y modelo contable del producto.

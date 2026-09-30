@@ -1,5 +1,13 @@
 # 06 — Criterios de aceptación del MVP
 
+> **Histórico — Kotlin/Room.**
+> Este documento contiene los criterios de aceptación originales del MVP escritos para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/acceptance.md`](./product/acceptance.md), [`docs/product/vision.md`](./product/vision.md), [`docs/product/domain-rules.md`](./product/domain-rules.md), [`docs/product/budgeting.md`](./product/budgeting.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** semántica contable en [`docs/architecture/decisions/009-financial-accounting-semantics.md`](./architecture/decisions/009-financial-accounting-semantics.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 ## AC-01 Moneda
 
 Dada cualquier operación monetaria,

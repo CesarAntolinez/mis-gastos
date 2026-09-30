@@ -1,5 +1,13 @@
 # 11 — Historial, detalle, edición y anulación
 
+> **Histórico — Kotlin/Room.**
+> Este documento describe el comportamiento del historial original del MVP para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/history.md`](./product/history.md), [`docs/product/vision.md`](./product/vision.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** semántica contable en [`docs/architecture/decisions/009-financial-accounting-semantics.md`](./architecture/decisions/009-financial-accounting-semantics.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 Este documento define el comportamiento funcional del Historial. El Historial muestra movimientos financieros reales y sus relaciones; no sustituye ni reinterpreta los agregados del Dashboard definidos en `09-indicators-dashboard.md`.
 
 ## 1. Principio de trazabilidad

@@ -1,5 +1,13 @@
 # 09 — Indicadores y Dashboard
 
+> **Histórico — Kotlin/Room.**
+> Este documento contiene las fórmulas e indicadores originales del MVP escritos para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/budgeting.md`](./product/budgeting.md), [`docs/product/domain-rules.md`](./product/domain-rules.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** semántica contable en [`docs/architecture/decisions/009-financial-accounting-semantics.md`](./architecture/decisions/009-financial-accounting-semantics.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 Este documento es la fuente de verdad para las fórmulas financieras visibles en Resumen. Si una consulta Room, caso de uso, ViewModel o componente UI produce un valor diferente, debe revisarse contra este contrato.
 
 ## 1. Separación conceptual

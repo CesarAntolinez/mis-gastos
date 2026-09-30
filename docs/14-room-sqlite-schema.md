@@ -1,5 +1,13 @@
 # 14 — Esquema físico Room / SQLite
 
+> **Histórico — Kotlin/Room.**
+> Este documento congela el diseño físico inicial de persistencia para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/architecture/decisions/002-persistence.md`](./architecture/decisions/002-persistence.md) (SQLite + Drift), [`docs/architecture/decisions/009-financial-accounting-semantics.md`](./architecture/decisions/009-financial-accounting-semantics.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** persistencia local en [`docs/architecture/decisions/002-persistence.md`](./architecture/decisions/002-persistence.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 Este documento congela el diseño físico inicial de persistencia del MVP. Complementa `02-domain-and-data.md`: el dominio define significado e invariantes; este documento define cómo se representan en Room/SQLite.
 
 ## 1. Principios

@@ -1,5 +1,12 @@
 # 15 — Auditoría final de especificación MVP
 
+> **Histórico — Kotlin/Room.**
+> Este documento registra la auditoría final de la especificación original del MVP para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/`](./product/) para reglas de producto y [`docs/architecture/decisions/`](./architecture/decisions/) para decisiones técnicas vigentes.
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 Fecha de revisión: 2026-09-25
 
 ## Objetivo

@@ -1,5 +1,13 @@
 # 10 — Navegación y flujos funcionales
 
+> **Histórico — Kotlin/Room.**
+> Este documento describe la navegación y los flujos funcionales originales del MVP para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/navigation.md`](./product/navigation.md), [`docs/product/history.md`](./product/history.md), [`docs/product/vision.md`](./product/vision.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** dirección de plataforma y UX en [`docs/architecture/decisions/001-mobile-framework.md`](./architecture/decisions/001-mobile-framework.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 Este documento define cómo se recorre el MVP y qué operación de dominio dispara cada flujo visible. Complementa `03-ux-ui.md`; no redefine las fórmulas de `09-indicators-dashboard.md`.
 
 ## 1. Navegación principal

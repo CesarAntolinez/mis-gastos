@@ -1,6 +1,8 @@
 # ADR-001 — MVP local-only y offline-first
 
-- Estado: `Accepted`
+> **Histórico / legacy.** Este ADR pertenece a la era Kotlin/Room del proyecto y **ya no es autoridad de implementación activa**. La regla de producto "MVP local-only y offline-first" sigue vigente en [`docs/product/vision.md`](../product/vision.md) (sección *Operación local y offline-first*) y en [`docs/architecture/decisions/001-mobile-framework.md`](../architecture/decisions/001-mobile-framework.md) (enfoque local-first). El mecanismo Room y las referencias a Kotlin están obsoletos para la implementación actual.
+
+- Estado: `Accepted` (en su momento, era Kotlin/Room)
 - Fecha: 2026-09-25
 
 ## Contexto
