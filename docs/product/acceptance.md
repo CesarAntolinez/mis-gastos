@@ -10,7 +10,7 @@ Los detalles de fórmulas, semántica de operaciones, configuración, historial,
 
 - **AC-02 Saldo inicial**: Configurar un saldo disponible inicial aumenta el disponible, pero no el ingreso base ni los indicadores 50/30/20. Ver [`onboarding.md`](./onboarding.md).
 
-- **AC-03 Categorías configurables**: Toda categoría define un bloque por defecto permitido (`Necesidades` o `Deseos`) sin modificar código. Ver [`configuration.md`](./configuration.md).
+- **AC-03 Categorías configurables**: La persona puede asignar a cada categoría un bloque por defecto permitido (`Necesidades` o `Deseos`). Ver [`configuration.md`](./configuration.md).
 
 - **AC-04 Histórico de categoría**: Si cambia el bloque por defecto de una categoría, las operaciones anteriores conservan el bloque histórico original. Ver [`domain-rules.md`](./domain-rules.md).
 
@@ -28,7 +28,7 @@ Los detalles de fórmulas, semántica de operaciones, configuración, historial,
 
 - **AC-20 Dependencias activas**: Si una operación origen tiene movimientos dependientes activos y su edición o anulación dejaría inconsistencias, la operación se bloquea y la interfaz explica qué relación impide el cambio. Ver [`history.md`](./history.md).
 
-- **AC-27 Detalle de movimiento**: El detalle de una operación activa muestra sus datos aplicables, relaciones y un efecto financiero derivado por la capa de dominio, no recalculado manualmente por la interfaz. Ver [`history.md`](./history.md).
+- **AC-27 Detalle de movimiento**: El detalle de una operación activa muestra sus datos aplicables, relaciones y explica claramente cómo afecta el disponible y los indicadores financieros. Ver [`history.md`](./history.md).
 
 - **AC-28 Relación navegable**: En el detalle de un préstamo con pagos o de un gasto con reintegros, las relaciones relevantes son visibles y permiten navegar al detalle del movimiento relacionado. Ver [`history.md`](./history.md).
 
@@ -152,7 +152,7 @@ Los detalles de fórmulas, semántica de operaciones, configuración, historial,
 
 - **AC-58 Tema centralizado**: En cualquier pantalla, los colores, tipografía, formas y espaciado principales provienen del sistema visual centralizado. Ver [`navigation.md`](./navigation.md) y [`docs/design/design-system.md`](../design/design-system.md).
 
-- **AC-59 Fuente única de cálculos**: Los indicadores del Dashboard se calculan en una única capa de dominio conforme a [`budgeting.md`](./budgeting.md); la interfaz no duplica las reglas de cálculo. Ver [`budgeting.md`](./budgeting.md).
+- **AC-59 Coherencia de indicadores**: Los indicadores del Dashboard coinciden con las reglas y fórmulas financieras documentadas para el período seleccionado. Ver [`budgeting.md`](./budgeting.md).
 
 - **AC-60 Calidad de slice**: Cada funcionalidad terminada no expone controles requeridos que conduzcan a flujos incompletos o placeholders. Ver [`navigation.md`](./navigation.md).
 
