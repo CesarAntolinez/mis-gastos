@@ -1,7 +1,9 @@
 # ADR-007 — Modelo de datos financiero: Operations + Entries
 
-**Status:** accepted  
+**Status:** superseded
 **Date:** 2026-09-28
+
+> **Superseded por ADR-009.** `docs/architecture/decisions/009-financial-accounting-semantics.md` reemplaza este ADR para la semántica contable del producto. ADR-007 sigue describiendo el modelo estructural subyacente de Operations + Entries allí donde sea consistente con ADR-009.
 
 ## Context
 
