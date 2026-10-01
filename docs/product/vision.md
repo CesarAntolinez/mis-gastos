@@ -59,6 +59,7 @@ Salvo que una decisión posterior lo incorpore explícitamente, el MVP no preten
 - `docs/product/history.md`: contrato de historial, detalle, edición, anulación y filtros de movimientos.
 - `docs/product/configuration.md`: reglas de categorías, productos financieros, personas y semilla inicial.
 - `docs/product/onboarding.md`: contrato de configuración inicial y finalización única.
+- `docs/product/navigation.md`: navegación principal, comportamiento de la acción global `+ Registrar`, interacciones del Dashboard y preservación de estado.
 - `docs/product/roadmap.md`: capacidades y orden de evolución.
 - `docs/development/workflow.md`: cómo una decisión de producto llega a implementación.
 - `docs/architecture/decisions/009-financial-accounting-semantics.md`: decisiones de arquitectura que fundamentan la semántica contable.
