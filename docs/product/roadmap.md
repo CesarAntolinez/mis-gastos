@@ -88,7 +88,17 @@ El alcance concreto se implementará mediante Issues aprobados. Las preferencias
 
 Objetivo: explicar los conceptos mínimos necesarios y dejar la aplicación preparada para el primer uso.
 
-El onboarding debe enseñar el modelo real del producto y no introducir conceptos que contradigan [`domain-rules.md`](./domain-rules.md) ni [`budgeting.md`](./budgeting.md).
+El onboarding sigue el contrato de [`onboarding.md`](./onboarding.md). Debe enseñar el modelo real del producto y no introducir conceptos que contradigan [`domain-rules.md`](./domain-rules.md) ni [`budgeting.md`](./budgeting.md).
+
+Capacidades:
+
+- saldo disponible inicial, incluyendo `$0`;
+- productos financieros iniciales opcionales;
+- creación idempotente de categorías seed al confirmar;
+- finalización atómica y estado explícito de completado;
+- eliminación del flujo del back stack al terminar.
+
+Criterio de salida: una instalación nueva puede completar el onboarding, iniciar con saldos correctos y llegar al flujo principal sin dejar estado parcial.
 
 ## Después del MVP
 
