@@ -61,6 +61,7 @@ Salvo que una decisión posterior lo incorpore explícitamente, el MVP no preten
 - `docs/product/onboarding.md`: contrato de configuración inicial y finalización única.
 - `docs/product/navigation.md`: navegación principal, comportamiento de la acción global `+ Registrar`, interacciones del Dashboard y preservación de estado.
 - `docs/product/acceptance.md`: criterios de aceptación canónicos del MVP.
+- `docs/product/scenarios.md`: escenarios conductuales canónicos de dominio.
 - `docs/product/roadmap.md`: capacidades y orden de evolución.
 - `docs/development/workflow.md`: cómo una decisión de producto llega a implementación.
 - `docs/architecture/decisions/009-financial-accounting-semantics.md`: decisiones de arquitectura que fundamentan la semántica contable.
