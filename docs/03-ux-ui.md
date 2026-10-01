@@ -1,5 +1,13 @@
 # 03 — UX / UI
 
+> **Histórico — Kotlin/Room.**
+> Este documento es parte de la especificación original del MVP escrita para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/vision.md`](./product/vision.md), [`docs/product/history.md`](./product/history.md), [`docs/product/navigation.md`](./product/navigation.md), [`docs/product/configuration.md`](./product/configuration.md), [`docs/product/onboarding.md`](./product/onboarding.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** dirección de UI/UX en [`docs/architecture/decisions/001-mobile-framework.md`](./architecture/decisions/001-mobile-framework.md) (Flutter + Dart).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 ## Principios
 
 - Rápido: registrar una operación debe requerir pocos pasos.

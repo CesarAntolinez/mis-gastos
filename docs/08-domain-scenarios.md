@@ -1,5 +1,13 @@
 # 08 — Escenarios de dominio
 
+> **Histórico — Kotlin/Room.**
+> Este documento contiene los escenarios de dominio originales del MVP escritos para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/scenarios.md`](./product/scenarios.md), [`docs/product/domain-rules.md`](./product/domain-rules.md), [`docs/product/budgeting.md`](./product/budgeting.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** semántica contable en [`docs/architecture/decisions/009-financial-accounting-semantics.md`](./architecture/decisions/009-financial-accounting-semantics.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 Este documento fija ejemplos que deben poder convertirse en tests. Si una implementación produce un resultado distinto, debe revisarse contra estas reglas antes de modificar el comportamiento.
 
 Las fórmulas canónicas de indicadores están en [`09-indicators-dashboard.md`](./09-indicators-dashboard.md).

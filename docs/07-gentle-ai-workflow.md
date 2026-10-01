@@ -1,5 +1,13 @@
 # 07 — Flujo de trabajo con Gentle-AI / Opencode
 
+> **Histórico — Kotlin/Room.**
+> Este documento describe el flujo de trabajo recomendado para la era Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/development/workflow.md`](./development/workflow.md), [`AGENT.md`](../AGENT.md), [`docs/product/vision.md`](./product/vision.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** proceso de desarrollo actual en [`docs/development/workflow.md`](./development/workflow.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 ## Objetivo
 
 Usar agentes para implementar el proyecto sin permitir que el roadmap se convierta en una colección de funcionalidades parcialmente terminadas.

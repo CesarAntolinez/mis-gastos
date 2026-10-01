@@ -1,5 +1,13 @@
 # 02 — Dominio y datos
 
+> **Histórico — Kotlin/Room.**
+> Este documento es parte de la especificación original del MVP escrita para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/domain-rules.md`](./product/domain-rules.md), [`docs/product/budgeting.md`](./product/budgeting.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** semántica contable en [`docs/architecture/decisions/009-financial-accounting-semantics.md`](./architecture/decisions/009-financial-accounting-semantics.md); modelo estructural en [`docs/architecture/decisions/007-financial-data-model.md`](./architecture/decisions/007-financial-data-model.md); representación monetaria en [`docs/architecture/decisions/005-money-representation.md`](./architecture/decisions/005-money-representation.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 ## Principio
 
 `Transaction` es la fuente de verdad de los movimientos financieros. Préstamos, pagos, ahorro, retiros, devoluciones y rendimientos deben estar respaldados por transacciones; las entidades auxiliares aportan contexto y relaciones, pero no duplican los datos monetarios del movimiento.

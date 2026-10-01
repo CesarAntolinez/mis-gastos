@@ -1,5 +1,13 @@
 # 01 — Requisitos
 
+> **Histórico — Kotlin/Room.**
+> Este documento es parte de la especificación original del MVP escrita para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/vision.md`](./product/vision.md), [`docs/product/domain-rules.md`](./product/domain-rules.md), [`docs/product/budgeting.md`](./product/budgeting.md), [`docs/product/configuration.md`](./product/configuration.md), [`docs/product/onboarding.md`](./product/onboarding.md), [`docs/product/history.md`](./product/history.md), [`docs/product/navigation.md`](./product/navigation.md), [`docs/product/acceptance.md`](./product/acceptance.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** semántica contable en [`docs/architecture/decisions/009-financial-accounting-semantics.md`](./architecture/decisions/009-financial-accounting-semantics.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 ## Requisitos funcionales
 
 ### RF-01 Registrar transacción

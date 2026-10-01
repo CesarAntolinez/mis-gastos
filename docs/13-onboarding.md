@@ -1,5 +1,13 @@
 # 13 — Onboarding
 
+> **Histórico — Kotlin/Room.**
+> Este documento describe el onboarding original del MVP para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/onboarding.md`](./product/onboarding.md), [`docs/product/vision.md`](./product/vision.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** dirección de plataforma en [`docs/architecture/decisions/001-mobile-framework.md`](./architecture/decisions/001-mobile-framework.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 Este documento define la configuración inicial del MVP. El onboarding permite establecer un estado financiero inicial correcto sin obligar a reconstruir movimientos históricos anteriores.
 
 ## 1. Objetivo

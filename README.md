@@ -34,9 +34,7 @@ Ejemplos de entradas que no aumentan ingreso base:
 
 Una devolución de préstamo recibida en un mes posterior sí aumenta el ingreso base del nuevo período. Los retiros de ahorro nunca se convierten en ingreso nuevo.
 
-> Fórmulas e invariantes históricas: [`docs/09-indicators-dashboard.md`](./docs/09-indicators-dashboard.md).
->
-> La consolidación canónica de reglas financieras está en curso en [`docs/product/domain-rules.md`](./docs/product/domain-rules.md).
+Las fórmulas de 50/30/20 están en [`docs/product/budgeting.md`](./docs/product/budgeting.md), y las invariantes financieras en [`docs/product/domain-rules.md`](./docs/product/domain-rules.md). Estas son las fuentes canónicas vigentes del producto.
 
 ## Stack objetivo
 

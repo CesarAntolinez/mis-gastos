@@ -1,6 +1,8 @@
 # ADR-003 — Transacciones como fuente de verdad financiera
 
-- Estado: `Accepted`
+> **Histórico / legacy.** Este ADR pertenece a la era Kotlin/Room del proyecto y **ya no es autoridad de implementación activa**. El principio "transacciones como fuente de verdad financiera" evolucionó al modelo `Financial Operation + Transaction Entry` de [`docs/architecture/decisions/007-financial-data-model.md`](../architecture/decisions/007-financial-data-model.md) (guía estructural, superseded para semántica contable) y [`docs/architecture/decisions/009-financial-accounting-semantics.md`](../architecture/decisions/009-financial-accounting-semantics.md) (semántica contable vigente). El modelo plano `Transaction` de este ADR está obsoleto para la implementación actual.
+
+- Estado: `Accepted` (en su momento, era Kotlin/Room)
 - Fecha: 2026-09-25
 
 ## Contexto

@@ -1,6 +1,8 @@
 # ADR-005 — Inyección manual con AppContainer
 
-- Estado: `Accepted`
+> **Histórico / legacy — superseded.** Este ADR pertenece a la era Kotlin/Room del proyecto y **ya no es autoridad de implementación activa**. La inyección manual con `AppContainer` fue reemplazada por [`docs/architecture/decisions/003-state-management.md`](../architecture/decisions/003-state-management.md) (Riverpod como mecanismo de estado y composición de dependencias). `AppContainer`, Kotlin, Jetpack Compose y la arquitectura manual descrita aquí están obsoletas para la implementación actual.
+
+- Estado: `Accepted` (en su momento, era Kotlin/Room)
 - Fecha: 2026-09-25
 
 ## Contexto

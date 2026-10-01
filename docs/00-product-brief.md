@@ -1,5 +1,13 @@
 # 00 — Product Brief
 
+> **Histórico — Kotlin/Room.**
+> Este documento es parte de la especificación original del MVP escrita para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/vision.md`](./product/vision.md), [`docs/product/domain-rules.md`](./product/domain-rules.md), [`docs/product/budgeting.md`](./product/budgeting.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** reglas financieras en [`docs/architecture/decisions/009-financial-accounting-semantics.md`](./architecture/decisions/009-financial-accounting-semantics.md); dirección Flutter en [`docs/architecture/decisions/001-mobile-framework.md`](./architecture/decisions/001-mobile-framework.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 ## Problema
 
 Registrar gastos manualmente suele terminar en una lista de movimientos sin contexto. Mis Gastos busca convertir ingresos, egresos, ahorro y dinero por cobrar en una lectura simple del comportamiento financiero personal usando la metodología 50/30/20.

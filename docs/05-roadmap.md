@@ -1,5 +1,13 @@
 # 05 — Roadmap
 
+> **Histórico — Kotlin/Room.**
+> Este documento describe el roadmap original de slices de implementación para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/roadmap.md`](./product/roadmap.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** dirección de plataforma en [`docs/architecture/decisions/001-mobile-framework.md`](./architecture/decisions/001-mobile-framework.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 ## Principio
 
 El roadmap se implementa como slices verticales cerrados. No avanzar al siguiente slice con funcionalidades requeridas del actual incompletas.

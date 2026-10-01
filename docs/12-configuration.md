@@ -1,5 +1,13 @@
 # 12 — Configuración
 
+> **Histórico — Kotlin/Room.**
+> Este documento describe la configuración original del MVP para Android nativo con Kotlin y Room. **Ya no es autoridad de implementación activa.**
+>
+> **Autoridad actual:** [`docs/product/configuration.md`](./product/configuration.md), [`docs/product/vision.md`](./product/vision.md) y las decisiones vigentes en [`docs/architecture/decisions/`](./architecture/decisions/).
+> **Reemplazos relevantes:** dirección de plataforma en [`docs/architecture/decisions/001-mobile-framework.md`](./architecture/decisions/001-mobile-framework.md).
+>
+> El contenido, IDs y decisiones originales se conservan como referencia histórica.
+
 Este documento define la gestión de datos maestros del MVP: categorías, productos financieros y personas. Configuración no es una superficie para mover dinero; los movimientos se registran mediante los flujos definidos en `10-navigation-and-flows.md`.
 
 ## 1. Pantalla principal
