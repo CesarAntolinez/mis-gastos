@@ -11,6 +11,7 @@ Objetivo: establecer una fuente de verdad antes de acelerar implementación.
 - [x] Definir visión y alcance inicial.
 - [x] Documentar reglas centrales del dominio financiero.
 - [x] Definir separación entre roadmap, Issues, ODD, SDD y RDD.
+- [x] Fijar contrato 50/30/20, períodos calendario y fórmulas de presupuesto en [`budgeting.md`](./budgeting.md).
 - [ ] Consolidar decisiones previas adicionales que todavía existan solo fuera del repositorio.
 - [ ] Mantener Issues aprobados como backlog operativo.
 
@@ -25,11 +26,12 @@ Capacidades:
 - disponible;
 - productos financieros propios;
 - movimientos internos;
-- reintegros;
-- clasificación dependiente del período cuando corresponda;
+- reintegros y devoluciones con regla de mismo/mes posterior;
+- préstamos y cuentas por cobrar derivadas;
+- clasificación por bloques 50/30/20 y metas del período;
 - trazabilidad entre movimientos relacionados.
 
-Criterio de salida: los casos principales definidos en `domain-rules.md` pueden representarse sin duplicar dinero ni inflar ingresos.
+Criterio de salida: los casos principales definidos en [`domain-rules.md`](./domain-rules.md) y [`budgeting.md`](./budgeting.md) pueden representarse sin duplicar dinero ni inflar ingresos.
 
 ## Etapa 2 — Registro y operación diaria
 
@@ -41,6 +43,7 @@ Capacidades:
 - creación de ingresos;
 - movimientos hacia y desde ahorro/productos financieros;
 - registro de reintegros;
+- registro de préstamos y pagos recibidos;
 - validaciones y estados necesarios para evitar registros ambiguos.
 
 Criterio de salida: los movimientos cotidianos pueden registrarse con una semántica consistente y producir un disponible explicable.
@@ -85,7 +88,7 @@ El alcance concreto se implementará mediante Issues aprobados. Las preferencias
 
 Objetivo: explicar los conceptos mínimos necesarios y dejar la aplicación preparada para el primer uso.
 
-El onboarding debe enseñar el modelo real del producto y no introducir conceptos que contradigan `domain-rules.md`.
+El onboarding debe enseñar el modelo real del producto y no introducir conceptos que contradigan [`domain-rules.md`](./domain-rules.md) ni [`budgeting.md`](./budgeting.md).
 
 ## Después del MVP
 
@@ -94,10 +97,11 @@ Las siguientes áreas requieren evaluación separada antes de incorporarse:
 - automatización o importación de movimientos;
 - conciliación con fuentes externas;
 - analítica avanzada;
-- presupuestos y metas;
+- presupuestos y metas personalizables más allá de 50/30/20;
 - sincronización/múltiples dispositivos;
 - capacidades multiusuario;
-- integraciones financieras externas.
+- integraciones financieras externas;
+- soporte de divisas distintas a COP.
 
 No se consideran comprometidas por aparecer en esta sección.
 
