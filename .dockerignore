@@ -1,0 +1,28 @@
+# Build outputs and caches
+app/build/
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.packages
+app/pubspec.lock
+
+# Version control
+.git/
+.gitignore
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Project docs and planning (not required for the toolchain image)
+docs/
+odd/
+.agents/
+.atl/
+.codegraph/

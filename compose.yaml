@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+      - pub-cache:/root/.pub-cache
+      - gradle-cache:/root/.gradle
+    working_dir: /app
+    command: ["flutter", "--version"]
+
+volumes:
+  pub-cache:
+  gradle-cache:

@@ -1,1 +1,50 @@
+# Flutter/Dart build outputs and caches
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+generated_plugin_registrant.dart
+.packages
+build/
 
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/key.properties
+*.jks
+
+# iOS / macOS
+ios/Flutter/.last_build_id
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+macos/Flutter/ephemeral/
+macos/Pods/
+
+# Web
+web/.dart_tool/
+
+# Windows
+windows/flutter/ephemeral/
+
+# Linux
+linux/flutter/ephemeral/
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+
+# OS metadata
+.DS_Store
+Thumbs.db
