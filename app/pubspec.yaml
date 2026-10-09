@@ -11,11 +11,17 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  # Typed SQLite access layer (ADR-002).
+  drift: ^2.35.2
+  sqlite3: ^3.7.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  # Drift code generation.
+  build_runner: ^2.16.2
+  drift_dev: ^2.35.1
 
 flutter:
   uses-material-design: true
