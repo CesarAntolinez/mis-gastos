@@ -1,9 +1,12 @@
 # ADR-009 — Financial accounting semantics for Operations + Entries
 
-**Status:** accepted
+**Status:** accepted (amended 2026-10-08 for the first-expense-slice schema freeze)
 **Date:** 2026-09-29
+**Amended:** 2026-10-08
 
 > **Accepted by the owner.** This decision refines and supersedes ADR-007 for financial accounting semantics.
+>
+> **Amendment (2026-10-08).** Accepted by the owner. This amendment records the owner-accepted decisions required to freeze the first-expense-slice schema vocabulary. It **amends** the accepted ADR-009; it does not supersede it and does not change any other semantic rule above. See [Amendment — first-slice schema freeze](#amendment--first-slice-schema-freeze-2026-10-08) below.
 
 ## Decision in one sentence
 
@@ -165,12 +168,47 @@ The derived vocabulary is intentionally limited to `PENDING` and `PAID`. Do **no
 
 The following items are intentionally left open for the first vertical slice or owner decision; this ADR only fixes the semantics direction:
 
-1. Exact enum names and cardinality for operation kinds (e.g., does `financial_return` need a separate kind, or can it be a subtype of `income`?).
-2. Whether the historical bucket is stored on the operation, on the primary entry, or both.
+1. Exact enum names and cardinality for operation kinds (e.g., does `financial_return` need a separate kind, or can it be a subtype of `income`?). **Resolved for the first slice by the amendment below: the first-slice enum is exactly `expense` and `opening_balance`.**
+2. Whether the historical bucket is stored on the operation, on the primary entry, or both. **Resolved by the amendment below: the historical bucket is persisted at operation level.**
 3. Whether a `Debt` entity is created at the domain layer or represented purely by operation links in the MVP schema.
 4. UX behavior when voiding is blocked by active dependents: error, warning, or guided correction?
 5. Index and query design for effective-date ranges, links, and void filtering (follow ADR-007 Drift implications).
 6. Conversion rules for `Money` across accounts remain undefined; MVP is strictly COP.
+
+## Amendment — first-slice schema freeze (2026-10-08)
+
+**Status:** accepted by the owner as an amendment to the accepted ADR-009, not a supersession.
+
+### Context
+
+The first expense vertical slice needs a frozen, minimal schema and domain vocabulary before Drift tables, use cases, and UI are implemented. The main body of this ADR intentionally left the exact operation-kind vocabulary and the bucket storage location open (see [Questions and implementation dependencies](#questions-and-implementation-dependencies)). The owner accepted the resolutions below for the first slice.
+
+### Decision
+
+1. **First-slice `OperationKind` is exactly `expense` and `opening_balance`.** Every other kind in the semantics table above (`income`, `transfer`, `reimbursement`, `saving_contribution`, `saving_withdrawal`, `financial_return`, `loan`, `loan_repayment`) is deferred until its flow is explicitly authorized. The semantics table remains the target vocabulary, not the first-slice enum.
+2. **A positive initial available-cash amount is an `opening_balance` event.** A `$0` initial amount creates no zero-value event and never counts as income. This restates the opening-balance rule above for the first-slice onboarding flow.
+3. **The historical NEEDS/WANTS bucket is persisted at operation level.** For the first slice the only relevant buckets are `NEEDS` and `WANTS`. Historical classification is never derived from a category that may change later; a category may only default or propose a bucket at creation time. The bucket recorded on the operation is the historical truth.
+
+### Alternatives
+
+| Alternative | Why not selected |
+|---|---|
+| Defer the schema freeze and carry the full operation-kind enum | The slice would ship unexercised kinds and an unstable vocabulary before any flow validates them. |
+| Derive the bucket from the category at read time | Contradicts the accepted rule that the stored operation bucket is the historical truth; changing a category would rewrite history. |
+| Represent the opening balance as `income` or as a zero-value event | An opening balance is available-cash state, not income; and a zero amount must not create an event. |
+
+### Consequences
+
+- The first-slice schema only needs the `expense` and `opening_balance` kinds, plus an operation-level bucket that is present for `expense` and absent for `opening_balance`.
+- Adding a deferred kind later is an additive change to its enum value and flow, not a semantic redefinition.
+- Domain and persistence tests can target exactly these two kinds and the operation-level bucket snapshot.
+
+### References
+
+- `odd/tasks/first-expense-slice.md` — "Accepted decisions" and work unit 2
+- `docs/product/domain-rules.md` §3, §4, §10
+- `docs/product/budgeting.md`
+- `app/lib/domain/`
 
 ## References
 
