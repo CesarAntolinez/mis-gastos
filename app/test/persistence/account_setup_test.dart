@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mis_gastos/domain/domain_exception.dart';
 import 'package:mis_gastos/domain/money.dart';
 import 'package:mis_gastos/domain/operation.dart';
 import 'package:mis_gastos/domain/operation_date.dart';
@@ -94,13 +95,20 @@ void main() {
     },
   );
 
-  test('does not create a second cash account when setup runs twice', () async {
+  test('never records a second opening balance for the account', () async {
     await setup.setup(
       initialAvailableCash: Money.cop(150000),
       effectiveDate: effectiveDate,
     );
-    await setup.setup(effectiveDate: effectiveDate);
 
+    await setup.setup(effectiveDate: effectiveDate);
+    await expectLater(
+      setup.setup(
+        initialAvailableCash: Money.cop(90000),
+        effectiveDate: effectiveDate,
+      ),
+      throwsA(isA<InvalidOperationException>()),
+    );
     expect(await accountCount(), 1);
     expect(await operationCount(), 1);
   });

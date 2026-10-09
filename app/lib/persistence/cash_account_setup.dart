@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:mis_gastos/domain/domain_exception.dart';
 import 'package:mis_gastos/domain/money.dart';
 import 'package:mis_gastos/domain/operation.dart';
 import 'package:mis_gastos/domain/operation_date.dart';
@@ -82,6 +83,11 @@ final class CashAccountSetup {
       final amount = initialAvailableCash;
       PersistedOperation? openingBalanceOperation;
       if (amount != null && amount.minorUnits > 0) {
+        if (await _hasOpeningBalance(account.id)) {
+          throw const InvalidOperationException(
+            'Opening balance already recorded for this cash account.',
+          );
+        }
         openingBalanceOperation = await _operations.insert(
           OpeningBalanceOperation(amount: amount, date: effectiveDate),
           accountId: account.id,
@@ -92,5 +98,15 @@ final class CashAccountSetup {
         openingBalanceOperation: openingBalanceOperation,
       );
     });
+  }
+
+  Future<bool> _hasOpeningBalance(int accountId) async {
+    final query = _db.select(_db.operations)
+      ..where(
+        (t) =>
+            t.accountId.equals(accountId) &
+            t.kind.equals(OperationKind.openingBalance.wireName),
+      );
+    return await query.getSingleOrNull() != null;
   }
 }
