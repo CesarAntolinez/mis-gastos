@@ -158,3 +158,60 @@ Un cambio está listo cuando:
 - cualquier SDD requerido fue seleccionado explícitamente y tiene los artefactos necesarios para la etapa de implementación.
 
 A partir de ese punto PI DEV puede ejecutar el trabajo mediante la ruta correspondiente.
+
+## Entorno reproducible con Docker
+
+El repositorio incluye un entorno Docker con las versiones fijadas de Flutter, Dart y el toolchain Android necesario para compilar. No se requiere una instalación de Flutter en el host para ejecutar analyze, tests, generación de código ni builds de APK.
+
+Versiones actuales fijadas en `Dockerfile`:
+
+- Flutter **3.47.5** (stable) con Dart **3.13.4**.
+- Android command-line tools `15859902`.
+- Android SDK platform `android-36`, build-tools `36.0.0`, NDK `28.2.13676358`.
+- OpenJDK 21 sobre Ubuntu 24.04.
+
+> El origen oficial de la versión Flutter/Dart es el release tracker del proyecto Flutter: https://github.com/flutter/flutter/issues/192828. El binario se descarga desde el archivo oficial de Flutter: https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.5-stable.tar.xz.
+
+### Construir la imagen
+
+Desde la raíz del repositorio:
+
+```bash
+docker compose build app
+```
+
+### Comandos habituales
+
+Todos los comandos se ejecutan desde la raíz del repositorio y operan sobre el proyecto ubicado en `app/`:
+
+```bash
+# Verificar versiones
+docker compose run --rm app flutter --version
+docker compose run --rm app dart --version
+
+# Descargar dependencias
+docker compose run --rm app flutter pub get
+
+# Formato
+docker compose run --rm app dart format --output=none --set-exit-if-changed .
+
+# Análisis estático
+docker compose run --rm app flutter analyze
+
+# Pruebas
+docker compose run --rm app flutter test
+
+# Generación Drift / build_runner (cuando el proyecto la requiera)
+docker compose run --rm app dart run build_runner build --delete-conflicting-outputs
+
+# Build de APK Android (sin emulador)
+docker compose run --rm app flutter build apk
+```
+
+El servicio `app` monta el directorio `app/` en `/app` y conserva los caches de Pub y Gradle en volúmenes nombrados para reducir descargas repetidas entre ejecuciones.
+
+### Límites del entorno Docker
+
+- No incluye emulador Android ni soporte de dispositivos físicos.
+- El desarrollo interactivo (`flutter run`, hot reload) puede realizarse en el host cuando se instale Flutter/ADB localmente, pero no es obligatorio para los checks reproducibles.
+- Android Studio no es una dependencia del repositorio.
